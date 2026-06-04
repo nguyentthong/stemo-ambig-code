@@ -1,0 +1,36 @@
+model:
+  model_id: Qwen/Qwen3.5-27B
+  trust_remote_code: true
+  torch_dtype: bfloat16
+data:
+  train_file: /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft_qwen35_v4/sft_train.jsonl
+  dev_file:   /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft_qwen35_v4/sft_dev.jsonl
+  max_seq_len: 4096            # CoT preserved → longer targets, bump from 2048
+  video_fps: 1.0
+  video_max_frames: 16
+lora:
+  r: 128
+  alpha: 128
+  dropout: 0.0
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+training:
+  output_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen35_stemo_ambig_lora_v4
+  num_train_epochs: 2
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 5.0e-5
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  logging_steps: 5
+  eval_steps: 50
+  save_steps: 100
+  save_total_limit: 3
+  bf16: true
+  gradient_checkpointing: true
+  ddp_find_unused_parameters: false
+  remove_unused_columns: false
+  report_to: tensorboard
+  logging_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen35_stemo_ambig_lora_v4/runs
+  seed: 0

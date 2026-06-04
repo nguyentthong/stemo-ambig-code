@@ -1,0 +1,140 @@
+{% extends "_layout.html" %}
+
+{% block header_stats %}
+<div class="stats">video {{ idx + 1 }} of {{ n_videos }} · {{ seeds.annotations|length }} seeds saved</div>
+{% endblock %}
+
+{% block nav %}
+<div class="nav-buttons">
+  {% if prev_id %}<a href="{{ url_for('seed_page', video_id=prev_id) }}">‹ prev</a>{% else %}<span class="disabled">‹ prev</span>{% endif %}
+  {% if next_id %}<a href="{{ url_for('seed_page', video_id=next_id) }}">next ›</a>{% else %}<span class="disabled">next ›</span>{% endif %}
+</div>
+{% endblock %}
+
+{% block body %}
+
+<div class="video-wrap">
+  <video id="vid" controls preload="metadata" crossorigin="anonymous">
+    <source src="{{ video.video_url }}" type="video/mp4" />
+  </video>
+</div>
+<div class="video-url-row">
+  <span>video URL:</span>
+  <code id="vurl">{{ video.video_url }}</code>
+  <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('vurl').innerText)">copy</button>
+</div>
+
+<h2><code>{{ video.video_id }}</code></h2>
+
+<div class="info-box">
+  <b>Annotation tips.</b>
+  Each text box holds ONE template. Use <code>/</code> to embed multiple variants in a single template:
+  <br>e.g. <code>Does the man reach 1/2/3/4/5/6/7/8/9/10 points first?</code> expands to 10 questions, each with K=2 interpretations (which man).
+  <br>Write the template as a real person would phrase it. Don't try to be comprehensive — these are seeds. Gemini fills in the rest.
+</div>
+
+{% if substrate %}
+<details>
+  <summary>Substrate Q/A reference ({{ substrate.target_questions|length }} targets, {{ substrate.sub_questions|length }} sub-Qs)</summary>
+  <div>
+    <table class="qa">
+      <thead><tr><th>tqid</th><th>target question</th><th>ans</th><th>backed by</th></tr></thead>
+      <tbody>
+        {% for tq in substrate.target_questions %}
+        <tr>
+          <td><code>{{ tq.tqid }}</code></td>
+          <td>{{ tq.text }}</td>
+          <td>{{ tq.answer }}</td>
+          <td><code>{{ tq.sub_question_ids|join(', ') }}</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <h4>Sub-questions</h4>
+    <table class="qa">
+      <thead><tr><th>sqid</th><th>sub-question</th><th>ans</th></tr></thead>
+      <tbody>
+        {% for sq in substrate.sub_questions %}
+        <tr><td><code>{{ sq.sqid }}</code></td><td>{{ sq.text }}</td><td>{{ sq.answer }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>
+{% else %}
+<div class="info-box">
+  <b>Substrate reference unavailable.</b>
+  {% if substrate_error %}
+    <br><code>{{ substrate_error }}</code>
+  {% endif %}
+  <br>You can still annotate by watching the video above.
+</div>
+{% endif %}
+
+<h2>Your seed annotations</h2>
+
+<form method="post" action="{{ url_for('save_page', video_id=video.video_id) }}" id="seedform">
+  <div class="field-row">
+    <label for="annotator">Annotator:</label>
+    <input type="text" name="annotator" id="annotator"
+      value="{{ seeds.annotator or annotator_name }}" />
+  </div>
+
+  <div id="annots">
+    {% for a in seeds.annotations %}
+    <div class="annot-card" data-idx="{{ loop.index0 }}">
+      <div class="row">
+        <div>
+          <span class="num">#{{ loop.index }}</span>
+          <textarea name="text_{{ loop.index0 }}" placeholder="e.g. Does the man reach 1/2/3/4/5/6/7/8/9/10 points first?" rows="2">{{ a.text }}</textarea>
+          <input type="text" name="note_{{ loop.index0 }}" placeholder="optional note (e.g. K=2 which man)" value="{{ a.note }}" />
+        </div>
+        <button type="button" class="delete-btn" onclick="deleteAnnot(this)">delete</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="button" class="add-btn" onclick="addAnnot()">+ add annotation</button>
+
+  <div class="form-actions">
+    <button type="submit" name="action" value="save_stay" class="btn-secondary">Save</button>
+    <button type="submit" name="action" value="save_next" class="btn-primary">Save & next video →</button>
+  </div>
+</form>
+
+<script>
+function reindex() {
+  document.querySelectorAll('#annots .annot-card').forEach((card, i) => {
+    card.dataset.idx = i;
+    card.querySelector('.num').innerText = '#' + (i + 1);
+    card.querySelector('textarea').name = `text_${i}`;
+    card.querySelector('input[type="text"]').name = `note_${i}`;
+  });
+}
+function addAnnot() {
+  const wrap = document.getElementById('annots');
+  const i = wrap.children.length;
+  const card = document.createElement('div');
+  card.className = 'annot-card';
+  card.dataset.idx = i;
+  card.innerHTML = `
+    <div class="row">
+      <div>
+        <span class="num">#${i + 1}</span>
+        <textarea name="text_${i}" placeholder="e.g. Does the man reach 1/2/3/4/5/6/7/8/9/10 points first?" rows="2"></textarea>
+        <input type="text" name="note_${i}" placeholder="optional note (e.g. K=2 which man)" value="" />
+      </div>
+      <button type="button" class="delete-btn" onclick="deleteAnnot(this)">delete</button>
+    </div>`;
+  wrap.appendChild(card);
+  card.querySelector('textarea').focus();
+}
+function deleteAnnot(btn) {
+  btn.closest('.annot-card').remove();
+  reindex();
+}
+// If empty, prepopulate one blank
+if (document.querySelectorAll('#annots .annot-card').length === 0) addAnnot();
+</script>
+{% endblock %}

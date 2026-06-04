@@ -1,0 +1,78 @@
+{
+  "qwen35_base": {
+    "label": "Qwen3.5-27B base",
+    "n": 1056,
+    "n_noticed": 211,
+    "commit_given_notice": 0.3649289099526067,
+    "enum_given_notice": 0.6350710900473934,
+    "examples": [
+      {
+        "id": "stemo_ambig_0046_Md4QnipNYqM_seed_6ab8466b3c0f_007",
+        "phrase_context": "rk, the scene changes to show two men on a talk show set. One man (Chris Pratt) is standing and has just placed a lar",
+        "final": ""
+      },
+      {
+        "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_005",
+        "phrase_context": "the player hits a ball, which could be the 6th in the sequence of shots.\n\nTherefore, the answer is:\n- **Yes**, the pla",
+        "final": ""
+      }
+    ]
+  },
+  "qwen36_base": {
+    "label": "Qwen3.6-27B base",
+    "n": 1056,
+    "n_noticed": 73,
+    "commit_given_notice": 0.6027397260273972,
+    "enum_given_notice": 0.3972602739726028,
+    "examples": [
+      {
+        "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_000",
+        "phrase_context": "- There are four contestants: two men and two women.\n- The game involves stacking cups on top of blue cylindrical pla",
+        "final": ""
+      },
+      {
+        "id": "stemo_ambig_0021_6OTAiK95eMo_seed_7a6d028b47e0_005",
+        "phrase_context": "irst frame, we see a group of four people around a table with a red cup and several plates. The text \"Mystery String!\" is",
+        "final": ""
+      }
+    ]
+  },
+  "base": {
+    "label": "Qwen3-VL-32B base",
+    "n": 1056,
+    "n_noticed": 564,
+    "commit_given_notice": 0.5549645390070922,
+    "enum_given_notice": 0.4450354609929078,
+    "examples": [
+      {
+        "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_000",
+        "phrase_context": "at the first frame, there are several people on the stage with blue cylindrical stands, and red cups. The man in the blue sh",
+        "final": ""
+      },
+      {
+        "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_007",
+        "phrase_context": "In the first frame, there are several people on the stage, and the man in the blue shirt is near the cups. The second frame ",
+        "final": ""
+      }
+    ]
+  },
+  "qwen35_v4_base": {
+    "label": "Qwen3.5-27B v4 (no train)",
+    "n": 1056,
+    "n_noticed": 515,
+    "commit_given_notice": 0.39223300970873787,
+    "enum_given_notice": 0.6077669902912621,
+    "examples": [
+      {
+        "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_015",
+        "phrase_context": "equest:* \"If the question has multiple valid interpretations because of an ambiguous referent, enumerate each interpretation",
+        "final": ""
+      },
+      {
+        "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_013",
+        "phrase_context": " *   In the final shot (which could be interpreted as the \"third round\" or the end result), both boys are smiling and ",
+        "final": ""
+      }
+    ]
+  }
+}

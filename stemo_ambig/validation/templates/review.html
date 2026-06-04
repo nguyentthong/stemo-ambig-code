@@ -1,0 +1,153 @@
+{% extends "_layout.html" %}
+
+{% block nav %}
+<div class="nav-buttons">
+  {% if prev_id %}<a href="{{ url_for('review', candidate_id=prev_id) }}">‹ prev</a>{% else %}<span class="disabled">‹ prev</span>{% endif %}
+  {% if next_id %}<a href="{{ url_for('review', candidate_id=next_id) }}">next ›</a>{% else %}<span class="disabled">next ›</span>{% endif %}
+</div>
+{% endblock %}
+
+{% block body %}
+
+  {% if existing %}
+    <div class="existing-notice">
+      Already validated on {{ existing.validated_at }} by <b>{{ existing.validator }}</b>.
+      Submitting again will overwrite.
+    </div>
+  {% endif %}
+
+  <div class="meta">
+    <code>{{ cand.candidate_id }}</code> ·
+    {{ cand.ambiguity_type }} / {{ cand.ambiguity_subtype }}
+    <span class="ambiguity-badge">{{ cand.interpretations|length }} interpretations</span>
+    · video <code>{{ cand.video_id }}</code>
+  </div>
+
+  <div class="video-wrap" style="margin-top: 0.7rem;">
+    <video id="vid" controls preload="metadata">
+      <source src="{{ url_for('serve_video', video_id=cand.video_id) }}" type="video/mp4" />
+    </video>
+  </div>
+
+  <div class="question">Q: {{ cand.question }}</div>
+
+  <div class="card anchor-block">
+    <div><b>Substrate anchor</b> <span class="meta">(why this ties to STEMO)</span></div>
+    <div style="margin-top: 4px;">{{ cand.substrate_anchor.anchor_rationale }}</div>
+    <div class="meta" style="margin-top: 4px;">
+      ambiguity_source_ids: <code>{{ cand.substrate_anchor.ambiguity_source_ids|join(", ") }}</code>
+    </div>
+  </div>
+
+  <h2>Interpretations</h2>
+  {% for interp in cand.interpretations %}
+    <div class="card">
+      <div>
+        <span class="interp-id">[{{ interp.interpretation_id }}]</span>
+        predicted answer: <b>{{ interp.predicted_answer }}</b>
+        <span class="meta">(VLM confidence: {{ interp.vlm_confidence }})</span>
+      </div>
+      <div style="margin-top: 6px;">
+        <span class="meta">refers to:</span> {{ interp.referent_description }}
+      </div>
+      <div style="margin-top: 6px;" class="rewrite">
+        rewrite: "{{ interp.disambiguated_question }}"
+      </div>
+      {% if interp.vlm_proposed_evidence_spans %}
+      <div style="margin-top: 8px;">
+        <span class="meta">click to seek video:</span>
+        {% for s in interp.vlm_proposed_evidence_spans %}
+          <span class="span-btn" data-start="{{ s[0] }}">{{ "%.1f"|format(s[0]) }}–{{ "%.1f"|format(s[1]) }}s</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <details style="margin-top: 1rem;">
+    <summary>Raw candidate JSON</summary>
+    <pre>{{ cand_pretty }}</pre>
+  </details>
+
+  <h2>Your validation</h2>
+  <form method="post" action="{{ url_for('save', candidate_id=cand.candidate_id) }}">
+    <div class="field-row">
+      <label for="validator">Validator:</label>
+      <input type="text" name="validator" id="validator" style="max-width: 220px;"
+        value="{{ existing.validator if existing else validator_name }}" />
+    </div>
+
+    <div class="field-row">
+      <label>Genuinely ambiguous?</label>
+      <div class="radio-group">
+        {% set v = existing.is_genuinely_ambiguous if existing else 'unsure' %}
+        <label><input type="radio" name="is_genuinely_ambiguous" value="yes" {% if v == 'yes' %}checked{% endif %}/> yes</label>
+        <label><input type="radio" name="is_genuinely_ambiguous" value="no" {% if v == 'no' %}checked{% endif %}/> no</label>
+        <label><input type="radio" name="is_genuinely_ambiguous" value="unsure" {% if v == 'unsure' %}checked{% endif %}/> unsure</label>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Interpretation set complete?</label>
+      <div class="radio-group">
+        {% set v = existing.interpretation_set_complete if existing else 'unsure' %}
+        <label><input type="radio" name="interpretation_set_complete" value="yes" {% if v == 'yes' %}checked{% endif %}/> yes, only these</label>
+        <label><input type="radio" name="interpretation_set_complete" value="no" {% if v == 'no' %}checked{% endif %}/> no, another valid reading exists</label>
+        <label><input type="radio" name="interpretation_set_complete" value="unsure" {% if v == 'unsure' %}checked{% endif %}/> unsure</label>
+      </div>
+    </div>
+
+    <div class="field-row" style="flex-direction: column; align-items: stretch;">
+      <label for="missing_interpretation_note">If "no" above, describe the missing interpretation(s):</label>
+      <textarea name="missing_interpretation_note" id="missing_interpretation_note">{{ existing.missing_interpretation_note if existing else '' }}</textarea>
+    </div>
+
+    <div class="field-row">
+      <label for="gold_k">Gold K (your count of all valid interpretations):</label>
+      <input type="number" min="1" max="20" name="gold_k" id="gold_k" style="max-width: 90px;"
+        value="{{ existing.gold_k if (existing and existing.gold_k) else cand.interpretations|length }}" />
+      <span class="meta">Defaults to the candidate's K = {{ cand.interpretations|length }}; bump if you found more readings.</span>
+    </div>
+
+    <h2>Per-interpretation answer correctness</h2>
+    {% for interp in cand.interpretations %}
+      {% set pv = (existing.per_interpretation[interp.interpretation_id].answer_correct) if (existing and existing.per_interpretation.get(interp.interpretation_id)) else 'unsure' %}
+      {% set pnote = (existing.per_interpretation[interp.interpretation_id].note) if (existing and existing.per_interpretation.get(interp.interpretation_id)) else '' %}
+      <div class="card">
+        <div><span class="interp-id">[{{ interp.interpretation_id }}]</span> predicted: <b>{{ interp.predicted_answer }}</b></div>
+        <div class="field-row">
+          <label>Answer correct?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="answer_correct__{{ interp.interpretation_id }}" value="yes" {% if pv == 'yes' %}checked{% endif %}/> yes</label>
+            <label><input type="radio" name="answer_correct__{{ interp.interpretation_id }}" value="no" {% if pv == 'no' %}checked{% endif %}/> no</label>
+            <label><input type="radio" name="answer_correct__{{ interp.interpretation_id }}" value="unsure" {% if pv == 'unsure' %}checked{% endif %}/> unsure</label>
+          </div>
+        </div>
+        <div class="field-row" style="flex-direction: column; align-items: stretch;">
+          <label>Note:</label>
+          <input type="text" name="note__{{ interp.interpretation_id }}" value="{{ pnote }}" />
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="field-row" style="flex-direction: column; align-items: stretch;">
+      <label for="overall_note">Overall note (optional):</label>
+      <textarea name="overall_note" id="overall_note">{{ existing.overall_note if existing else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" name="action" value="save_and_next" class="btn-primary">Save & next →</button>
+      <button type="submit" name="action" value="save" class="btn-secondary">Save (stay)</button>
+    </div>
+  </form>
+
+  <script>
+    document.querySelectorAll('.span-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        const v = document.getElementById('vid');
+        const t = parseFloat(b.dataset.start);
+        if (!Number.isNaN(t)) { v.currentTime = t; v.play(); }
+      });
+    });
+  </script>
+{% endblock %}

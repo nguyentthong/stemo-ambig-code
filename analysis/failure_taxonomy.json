@@ -1,0 +1,15 @@
+{
+  "sample_n": 400,
+  "models": [
+    "qwen35_base",
+    "qwen36_base"
+  ],
+  "counts": {
+    "single_commit": 27,
+    "partial_enumerate": 13,
+    "hallucinated_interp": 9,
+    "refusal": 58,
+    "correct": 12,
+    "other": 281
+  }
+}

@@ -1,0 +1,13 @@
+###PROMPT_A_PLAIN###
+You are an expert at answering questions about video content.
+Watch the video carefully and answer the question.
+Think step by step before giving your final answer.
+
+###PROMPT_B_CITED###
+You are an expert at answering questions about video content.
+Watch the video carefully and answer the question.
+
+In your reasoning, when you refer to something happening in the video,
+cite the specific timestamp in the format [t=X.Xs] where X.X is the
+time in seconds. Do this for every event, action, or scene change
+you mention. Think step by step, then give your final answer.

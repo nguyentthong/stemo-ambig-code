@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>STEMO-Ambig seed annotation</title>
+<style>
+  :root {
+    --fg: #1a1a1a; --muted: #666; --border: #ddd; --accent: #2563eb;
+    --bg-card: #fafafa; --bg-warn: #fff7e0;
+  }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.45 system-ui, -apple-system, sans-serif; color: var(--fg); margin: 0; padding: 0; background: #fff; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1.5rem; }
+  header { border-bottom: 1px solid var(--border); padding: 0.9rem 1.5rem; background: #fff; position: sticky; top: 0; z-index: 10; }
+  header .row { display: flex; align-items: center; gap: 1.2rem; justify-content: space-between; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; }
+  header h1 a { color: var(--fg); text-decoration: none; }
+  header .stats { font-size: 12px; color: var(--muted); }
+  .nav-buttons a, .nav-buttons span { font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; text-decoration: none; color: var(--fg); }
+  .nav-buttons a:hover { background: #f5f5f5; }
+  .nav-buttons span.disabled { color: #bbb; }
+  h2 { margin-top: 1.4rem; font-size: 17px; }
+  .video-wrap { background: #000; max-width: 100%; border-radius: 6px; overflow: hidden; }
+  video { width: 100%; display: block; max-height: 480px; }
+  .video-url-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .video-url-row code { background: #f3f4f6; padding: 3px 8px; border-radius: 3px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, monospace; }
+  .copy-btn { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 3px; background: #fff; cursor: pointer; }
+  .copy-btn:hover { background: #f0f8ff; }
+  details { margin: 0.8rem 0; }
+  details summary { cursor: pointer; font-weight: 600; padding: 8px 12px; background: var(--bg-card); border-radius: 4px; }
+  details > div { padding: 0.8rem 0.4rem; }
+  details pre { font-size: 11px; max-height: 380px; overflow: auto; background: #fff; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; margin: 0; }
+  table.qa { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.qa th, table.qa td { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  table.qa th { background: #f9fafb; }
+  .annot-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 0.9rem; margin-bottom: 0.7rem; }
+  .annot-card .num { color: var(--muted); font-size: 11px; font-weight: 600; }
+  .annot-card textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font: 14px/1.4 inherit; resize: vertical; min-height: 56px; }
+  .annot-card input[type="text"] { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 13px; margin-top: 4px; }
+  .annot-card .row { display: flex; gap: 8px; align-items: flex-start; }
+  .annot-card .row > div { flex: 1; }
+  .delete-btn { font-size: 12px; padding: 4px 10px; border: 1px solid #fca5a5; border-radius: 4px; background: #fef2f2; color: #b91c1c; cursor: pointer; }
+  .delete-btn:hover { background: #fee2e2; }
+  .add-btn { font-size: 13px; padding: 6px 12px; border: 1px dashed var(--accent); border-radius: 4px; background: #f0f8ff; color: var(--accent); cursor: pointer; }
+  .add-btn:hover { background: #dbeafe; }
+  .form-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+  .btn-primary, .btn-secondary { display: inline-block; padding: 9px 16px; border-radius: 5px; border: 1px solid var(--accent); font-size: 14px; cursor: pointer; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1e40af; }
+  .btn-secondary { background: #fff; color: var(--accent); }
+  .btn-secondary:hover { background: #f0f8ff; }
+  .video-list { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .video-list th, .video-list td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  .video-list th { background: #f9fafb; font-size: 12px; color: var(--muted); }
+  .video-list tr:hover { background: #f9fafb; }
+  .video-list a { color: var(--accent); text-decoration: none; }
+  .video-list a:hover { text-decoration: underline; }
+  .has-seeds { font-weight: 600; color: #15803d; }
+  .field-row { display: flex; gap: 1.2rem; margin: 0.6rem 0; align-items: center; }
+  .field-row label { font-weight: 500; }
+  .field-row input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 13px; }
+  .info-box { background: var(--bg-warn); border: 1px solid #fde68a; padding: 0.6rem 0.9rem; border-radius: 4px; font-size: 13px; margin: 0.8rem 0; }
+  .info-box code { background: #fff; padding: 1px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1><a href="{{ url_for('index') }}">STEMO-Ambig seed annotation</a></h1>
+    {% block header_stats %}{% endblock %}
+    {% block nav %}{% endblock %}
+  </div>
+</header>
+<div class="container">
+  {% block body %}{% endblock %}
+</div>
+</body>
+</html>

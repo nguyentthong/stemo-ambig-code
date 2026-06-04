@@ -1,0 +1,31 @@
+{% extends "_layout.html" %}
+
+{% block header_stats %}
+<div class="stats">
+  {{ videos_with_seeds }} / {{ total_videos }} videos seeded · {{ total_seeds }} annotations total
+</div>
+{% endblock %}
+
+{% block body %}
+<h2>Pick a video to annotate</h2>
+<table class="video-list">
+  <thead>
+    <tr>
+      <th>Video</th>
+      <th>Substrate</th>
+      <th>Seeds</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in videos %}
+    <tr>
+      <td><code>{{ v.video_id }}</code></td>
+      <td>{{ v.n_targets }} targets · {{ v.n_subs }} sub-Qs</td>
+      <td class="{% if v.n_seeds > 0 %}has-seeds{% endif %}">{{ v.n_seeds }}</td>
+      <td><a href="{{ url_for('seed_page', video_id=v.video_id) }}">annotate →</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,61 @@
+# LoRA SFT config for Qwen3-VL-32B-Thinking on STEMO-Ambig SFT data.
+#
+# Defaults track the Thinking Machines LoRA blog:
+#   - rank 256 on all linear layers (MLPs + attention projections)
+#   - LR ~10x what FullFT would use
+#   - bf16, gradient checkpointing, DeepSpeed Zero-3
+#
+# Tune if dev metrics plateau low: bump rank to 512 OR scale train data.
+
+model:
+  model_id: Qwen/Qwen3-VL-32B-Thinking
+  trust_remote_code: true
+  torch_dtype: bfloat16
+
+data:
+  train_file: /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft/sft_train.jsonl
+  dev_file:   /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft/sft_dev.jsonl
+  max_seq_len: 2048
+  video_fps: 1.0
+  video_max_frames: 16
+  # In-training light validation DISABLED: Zero-3 + isolated-rank generation deadlocks
+  # (NCCL all-reduce on remaining ranks times out while rank-0 gathers params for generate()).
+  # Full validation still runs post-training via launch_sft.sh -> validate_checkpoint.sh.
+  # light_val_jsonl: /home/.../light_val.jsonl
+  # light_val_n_samples: 30
+  # light_val_max_new_tokens: 512
+
+lora:
+  r: 256
+  alpha: 256
+  dropout: 0.0   # 0 avoids checkpoint-recompute mismatches; LoRA paper-defaults to 0 anyway
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  output_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen3vl32b_stemo_ambig_lora_v1
+  num_train_epochs: 3
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8        # effective batch = 1 * 8 * 8 GPUs = 64
+  learning_rate: 1.0e-4                  # 10x typical FullFT (1e-5)
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  logging_steps: 1
+  eval_steps: 50
+  save_steps: 100
+  save_total_limit: 3
+  bf16: true
+  gradient_checkpointing: true
+  ddp_find_unused_parameters: false
+  remove_unused_columns: false
+  report_to: tensorboard
+  logging_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen3vl32b_stemo_ambig_lora_v1/tb
+  seed: 0

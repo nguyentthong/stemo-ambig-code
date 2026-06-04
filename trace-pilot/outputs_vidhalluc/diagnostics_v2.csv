@@ -1,0 +1,115 @@
+example_id,slice,prompt_variant,gt_answer,seed0_answer,seed1_answer,seed2_answer,seed0_correct,seed1_correct,seed2_correct,n_correct,seed01_agree,seed02_agree,seed12_agree,seed_variance,avg_trace_chars,max_trace_chars,avg_marker_count,any_truncated,judge_failures
+2VYZeOa6804_clip_4,ACH_BQA,A_plain,No,Yes,Yes,Yes,False,False,False,0,True,True,True,0,5029.3,11739,4.0,0,0
+2VYZeOa6804_clip_4,ACH_BQA,B_cited,No,Yes,Yes,Yes,False,False,False,0,True,True,True,0,3912.7,8828,2.33,0,0
+Hev5Vj0Jjuk_clip_3,ACH_BQA,A_plain,Yes,Yes,Yes,Yes,True,True,True,3,True,True,True,0,1042.3,1532,0.0,0,0
+Hev5Vj0Jjuk_clip_3,ACH_BQA,B_cited,Yes,Yes,Yes,Yes,True,True,True,3,True,True,True,0,1081.7,1129,0.0,0,0
+i_Fs0Qrtu90_clip_8,ACH_BQA,A_plain,Yes,Yes,Yes,Yes,True,True,True,3,True,True,True,0,1174.0,1307,0.0,0,0
+i_Fs0Qrtu90_clip_8,ACH_BQA,B_cited,Yes,Yes,Yes,Yes,True,True,True,3,True,True,True,0,1162.3,1301,0.0,0,0
+2DvHUEFc5VA_clip_1,ACH_MCQ,A_plain,C,C,C,C,True,True,True,3,True,True,True,0,3977.3,7544,4.67,0,0
+2DvHUEFc5VA_clip_1,ACH_MCQ,B_cited,C,C,C,C,True,True,True,3,True,True,True,0,1712.7,1908,1.33,0,0
+QVe7NojAHjY_clip_9,ACH_MCQ,A_plain,A,A,A,A,True,True,True,3,True,True,True,0,1125.7,1254,0.0,0,0
+QVe7NojAHjY_clip_9,ACH_MCQ,B_cited,A,A,A,A,True,True,True,3,True,True,True,0,1116.0,1251,0.0,0,0
+TDWbRqIEcts_clip_11,ACH_MCQ,A_plain,C,C,C,C,True,True,True,3,True,True,True,0,1272.0,1399,0.0,0,0
+TDWbRqIEcts_clip_11,ACH_MCQ,B_cited,C,C,C,C,True,True,True,3,True,True,True,0,1259.3,1347,0.0,0,0
+YjxjsP6A5H8_clip_1,ACH_MCQ,A_plain,B,B,B,B,True,True,True,3,True,True,True,0,1383.3,1485,0.0,0,0
+YjxjsP6A5H8_clip_1,ACH_MCQ,B_cited,B,B,B,B,True,True,True,3,True,True,True,0,1462.3,1679,0.0,0,0
+0yT6ihPVX54_YY8r5R_scho,STH,A_plain,"Scene change: Yes, Locations: from on a stage to in a room","Scene change: Yes, Locations: from a stage to a room.","Scene change: Yes, Locations: from a stage to a room.","Scene change: Yes, Locations: from a stage to a room.",True,True,True,3,True,True,True,0,2271.0,3073,1.0,0,0
+0yT6ihPVX54_YY8r5R_scho,STH,B_cited,"Scene change: Yes, Locations: from on a stage to in a room","Scene change: Yes, Locations: from a stage to a room.","Scene change: Yes, Locations: from a stage performance to a room with a fan.","Scene change: Yes, Locations: from a stage to a room with a fan.",True,True,True,3,True,True,True,0,1959.7,2098,0.67,0,0
+4GGUH7ykdCg_TYFkiyNIDWU,STH,A_plain,"Scene change: Yes, Locations: from on the grass to on the water","Scene change: Yes, Locations: from a grassy field to a lake.","Scene change: Yes, Locations: from a grassy field to a pond.","Scene change: Yes, Locations: from a grassy area to a lake.",True,True,True,3,True,True,True,0,1622.7,2119,0.33,0,0
+4GGUH7ykdCg_TYFkiyNIDWU,STH,B_cited,"Scene change: Yes, Locations: from on the grass to on the water","Scene change: Yes, Locations: from a grassy area to a body of water.","Scene change: Yes, Locations: from a grassy field to a lake.","Scene change: Yes, Locations: from a grassy field to a pond.",True,True,True,3,True,True,True,0,1159.3,1192,0.0,0,0
+56oHsMiQ8QY_v8WXRJNOt5w,STH,A_plain,"Scene change: Yes, Locations: from in the grass to in a house","Scene change: Yes, Locations: from outdoors to indoors.","Scene change: Yes, Locations: from outdoors to indoors.","Scene change: Yes, Locations: from a grassy backyard to an indoor room.",True,True,True,3,True,True,True,0,1453.0,1776,0.0,0,0
+56oHsMiQ8QY_v8WXRJNOt5w,STH,B_cited,"Scene change: Yes, Locations: from in the grass to in a house","Scene change: Yes, Locations: from outdoors to indoors.","Scene change: Yes, Locations: from outdoors to indoors.","Scene change: Yes, Locations: from outdoors to indoors.",True,True,True,3,True,True,True,0,1259.3,1420,0.0,0,0
+5WXA1R5jCvs_5akzQ9B7na8,STH,A_plain,"Scene change: Yes, Locations: from on a bus to inside a house","Scene change: Yes, Locations: from bus to house.","Scene change: Yes, Locations: from a bus to a living room.","Scene change: Yes, Locations: from a bus to a house.",True,True,True,3,True,True,True,0,1342.7,1482,0.0,0,0
+5WXA1R5jCvs_5akzQ9B7na8,STH,B_cited,"Scene change: Yes, Locations: from on a bus to inside a house","Scene change: Yes, Locations: from a bus to a living room.","Scene change: Yes, Locations: from bus to house.","Scene change: Yes, Locations: from bus to living room.",True,True,True,3,True,True,True,0,1318.7,1412,0.0,0,0
+fSY-uG_uayI_clip_1_6,STH,A_plain,"Scene change: No, Locations: None","Scene change: Yes, Locations: from a kitchen counter to a stove.","Scene change: Yes, Locations: from kitchen counter to stovetop.","Scene change: Yes, Locations: from a kitchen counter to a stove.",False,False,False,0,True,True,True,0,3221.7,5927,2.0,0,0
+fSY-uG_uayI_clip_1_6,STH,B_cited,"Scene change: No, Locations: None","Scene change: Yes, Locations: from a kitchen counter to a stove.","Scene change: Yes, Locations: from kitchen counter to stovetop.","Scene change: Yes, Locations: from kitchen counter to stove.",False,False,False,0,True,True,True,0,2113.3,3261,0.67,0,0
+oaOdliOVL6g_clip_2_4,STH,A_plain,"Scene change: No, Locations: None","Scene change: No, Locations: None","Scene change: No, Locations: None","Scene change: No, Locations: None",True,True,True,3,True,True,True,0,8705.7,12031,7.67,0,0
+oaOdliOVL6g_clip_2_4,STH,B_cited,"Scene change: No, Locations: None","Scene change: No, Locations: None","Scene change: No, Locations: None","Scene change: No, Locations: None",True,True,True,3,True,True,True,0,7447.0,8626,4.67,0,0
+okJ-HfG41YQ_dIMdZ0USZsI,STH,A_plain,"Scene change: Yes, Locations: from on the side of a road to in a park","Scene change: Yes, Locations: from a driveway to an amusement park ride.","Scene change: Yes, Locations: from a driveway to an amusement park.","Scene change: Yes, Locations: from driveway to amusement park.",False,True,True,2,True,True,True,0,1641.0,1841,0.0,0,0
+okJ-HfG41YQ_dIMdZ0USZsI,STH,B_cited,"Scene change: Yes, Locations: from on the side of a road to in a park","Scene change: Yes, Locations: from a driveway to an amusement park.","Scene change: Yes, Locations: from a driveway to an amusement park ride.","Scene change: Yes, Locations: from a driveway to an amusement park.",True,False,True,2,True,True,True,0,1472.7,1755,0.0,0,0
+Fe4tO5vW9_E_clip_2_3,TSH,A_plain,BA,"The correct order of actions is:
+1. adding potatoes to boiling water and cooking them
+2. melting butter and adding garlic",Action B happens before Action A.,"The user wants me to order the actions.
+
+1.  **Action B (adding potatoes to boiling water and cooking them):** At the very beginning of the video (00:00 - 00:03), a man is seen holding a colander filled with yellow chunks (potatoes) over a pot on the stove. While the specific action of water boiling isn't the focus, this segment clearly deals with the potatoes being prepared/cooked.
+2.  **Action A (melting butter and adding garlic):** Starting at 00:04, the camera focuses on a pot where a stick of butter is placed. The butter melts (00:05 - 00:11), and then garlic is pressed into the melted butter (00:13 - end).
+
+Therefore, the potato action happens first, followed by the butter and garlic action.
+
+Action B happens before Action A.",True,True,True,3,True,True,True,0,2785.0,6113,4.0,0,0
+Fe4tO5vW9_E_clip_2_3,TSH,B_cited,BA,Action B happens before Action A.,Action B happens before Action A.,"Action B happens before Action A.
+
+The video begins with a man dumping a colander full of yellow chunks, which appear to be potatoes, into a pot on the stove [00:00 - 00:03], corresponding to **Action B**. Following this, the scene cuts to a close-up of a saucepan where a stick of butter is placed [00:04], melted [00:06 - 00:11], and then garlic is pressed into it [00:12 - 00:14], which corresponds to **Action A**.",True,True,True,3,True,True,True,0,1549.3,2570,1.33,0,0
+JNFUZz1bqmg_clip_10_7,TSH,A_plain,BA,"The video begins with a first-person perspective of someone falling from a height and landing in an inflatable boat, which corresponds to the action of skydiving (or a similar jump). Following this, the video cuts to a view of metal stairs leading up a bridge structure and then shows a person walking and talking on the bridge, which corresponds to climbing stairs on a bridge.
+
+Therefore, the order of actions in the video is:
+1. skydiving
+2. climbing stairs on a bridge
+
+skydiving happens before climbing stairs on a bridge.",,"The video shows the following sequence of events:
+1.  **Skydiving**: From the very beginning (00:00) until about 00:05, a person is seen jumping from a height and landing in an inflatable boat. This action corresponds to skydiving (or a similar jump).
+2.  **Climbing stairs on a bridge**: After the jump, the video cuts to a view looking up a metal staircase (00:05) and then shows a man walking and talking on the blue bridge structure (00:07 onwards).
+
+Therefore, skydiving happens before climbing stairs on a bridge.
+
+skydiving happens before climbing stairs on a bridge",True,False,True,2,False,True,True,1,10475.7,14489,15.0,1,0
+JNFUZz1bqmg_clip_10_7,TSH,B_cited,BA,"The video begins with a clip of a person falling through the air and landing in a boat, which corresponds to the action of skydiving (or a similar aerial stunt) [00:00 - 00:04]. Following this, the video cuts to a point-of-view shot of someone walking up metal stairs on the bridge structure [00:04 - 00:06].
+
+Action B happens before Action A.","The video begins with a shot of a person falling through the air, which corresponds to skydiving (or a BASE jump) [00:00 - 00:05]. Following this, the video cuts to a view looking up a metal staircase on the bridge structure [00:05 - 00:07], indicating the action of climbing stairs. Therefore, skydiving appears before climbing stairs in the video.
+
+Action B happens before Action A.","The video shows a person climbing stairs on a bridge structure. Specifically, at [00:05], the camera view ascends a set of metal stairs on the blue steel framework of a bridge. The person is then seen walking on the bridge deck. There is no footage of skydiving in the provided clip.
+
+climbing stairs on a bridge",True,True,False,2,True,False,False,1,6687.3,7286,11.0,0,0
+L4tdvpago7s_clip_3_4,TSH,A_plain,BA,"The correct order of actions is: cutting vegetables, crushing the ingredients in a food processor.",Action B happens before Action A.,"The correct order of actions is:
+1. cutting vegetables
+2. crushing the ingredients in a food processor
+
+Therefore, cutting vegetables happens before crushing the ingredients in a food processor.",True,True,True,3,True,True,True,0,1005.0,1194,0.0,0,0
+L4tdvpago7s_clip_3_4,TSH,B_cited,BA,"The video shows the following sequence of events:
+- First, people are seen chopping vegetables like onions and garlic on a cutting board [t=0.0s] to [t=7.0s]. This corresponds to **Action B**.
+- Next, the chopped ingredients are poured into a food processor and blended into a paste [t=8.0s] to [t=25.0s]. This corresponds to **Action A**.
+
+Therefore, the correct order is **Action B** then **Action A**.",Action B happens before Action A.,Action B happens before Action A.,True,True,True,3,True,True,True,0,1000.7,1077,0.0,0,0
+MeHEDK_Y8sE_clip_3_5,TSH,A_plain,AB,Action A happens before Action B.,"The correct order of actions is:
+1. applying heat to hair wrapped in foil
+2. spinning in front of the camera",Action A happens before Action B.,True,True,True,3,True,True,True,0,1004.7,1106,0.0,0,0
+MeHEDK_Y8sE_clip_3_5,TSH,B_cited,AB,Action A happens before Action B.,Action A happens before Action B.,Action A happens before Action B.,True,True,True,3,True,True,True,0,915.3,1050,0.0,0,0
+RINsqxGLQdQ_clip_2_3,TSH,A_plain,BA,"The video shows the following sequence of events: windsurfing, receiving certificates and awards.","The video shows the following actions in this order: windsurfing, receiving certificates and awards.",Action B happens before Action A.,True,True,True,3,True,True,True,0,1224.0,1374,0.0,0,0
+RINsqxGLQdQ_clip_2_3,TSH,B_cited,BA,Action B. windsurfing happens before Action A. receiving certificates and awards.,"The video shows the following sequence of events:
+- **windsurfing**: The video begins with numerous clips of people, including children, windsurfing on the water [00:00 - 01:07].
+- **receiving certificates and awards**: Towards the end of the video, the scene shifts to an awards ceremony where children are holding certificates and wooden plaques [01:08 - 01:34].
+
+Therefore, the correct order is:
+windsurfing, receiving certificates and awards","The video's events are outlined chronologically below:
+- **00:00 - 01:08**: The video shows numerous clips of children windsurfing in the ocean.
+- **01:08 - 01:35**: The scene shifts to an award ceremony where children are seen holding certificates and trophies.
+
+Based on this timeline, the action of windsurfing happens before receiving certificates and awards.
+
+Action B happens before Action A.",True,True,True,3,True,True,True,0,2072.0,2446,0.0,0,0
+keFBEoBy0zY_clip_1_2,TSH,A_plain,AB,Action A happens before Action B.,Action A happens before Action B.,Action A happens before Action B.,True,True,True,3,True,True,True,0,923.7,1063,0.0,0,0
+keFBEoBy0zY_clip_1_2,TSH,B_cited,AB,Action A happens before Action B.,"The video shows the following sequence of events:
+- **exiting a building with a snowboard**: This happens first, as the man in the yellow suit leaves his apartment and walks down the stairs with his board [t=00:06 - t=00:18].
+- **snowboarding on a street**: This happens later, after he straps into his board and is towed down the snowy road [t=00:49 - t=01:11].
+
+Therefore, the correct order is: exiting a building with a snowboard, then snowboarding on a street.","The video shows the man exiting the building with his snowboard first, and then later snowboarding down the street. Therefore, the correct order is:
+
+1. exiting a building with a snowboard
+2. snowboarding on a street
+
+Action A happens before Action B.",True,True,True,3,True,True,True,0,1054.7,1193,0.0,0,0
+s9r-CxnCXkg_clip_4_5,TSH,A_plain,BA,"The video shows the actions in the following order:
+1.  **serving scrambled eggs on toast** (00:06 - 00:12)
+2.  **whisking eggs and steaming them** (00:14 - 00:45)
+
+Action B happens before Action A.",Action B happens before Action A.,"The video presents the actions in the following order:
+1. **serving scrambled eggs on toast** (00:00 - 00:13)
+2. **whisking eggs and steaming them** (00:14 - 00:44)
+
+Therefore, the correct order is:
+serving scrambled eggs on toast happens before whisking eggs and steaming them.",True,True,True,3,True,True,True,0,2735.3,3396,4.0,0,0
+s9r-CxnCXkg_clip_4_5,TSH,B_cited,BA,Action B happens before Action A.,"The correct order of actions is:
+1. serving scrambled eggs on toast [00:00]
+2. whisking eggs and steaming them [00:14]
+
+Therefore, the action that happens before is **serving scrambled eggs on toast**.",Action B happens before Action A.,True,True,True,3,True,True,True,0,2426.0,3924,5.0,0,0

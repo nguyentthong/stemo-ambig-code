@@ -1,0 +1,19 @@
+{
+  "n_judged_by_gpt4o": 200,
+  "n_failed": 0,
+  "enumerated": {
+    "n": 200,
+    "agree": 1.0,
+    "kappa": 1.0
+  },
+  "single_commit": {
+    "n": 200,
+    "agree": 1.0,
+    "kappa": 1.0
+  },
+  "n_matched": {
+    "n": 200,
+    "pearson_r": 0.6168266434310757,
+    "exact_match": 0.725
+  }
+}

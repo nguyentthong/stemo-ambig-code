@@ -1,0 +1,58 @@
+# LoRA SFT v2 — light-touch recipe for capability preservation.
+#
+# Changes from v1:
+#   - rank 256 → 128                 (less capacity to overwrite base behavior)
+#   - LR 1e-4 → 1e-5                 (10x lower; matches catastrophic-forgetting literature)
+#   - epochs 3 → 1                   (1 pass; literature standard for preservation)
+#   - data: 100% new behavior → 15% ambig + 85% rehearsal (LLaVA-Video-178K ActivityNet)
+#   - ambig CoT: Gemini-distilled → Qwen self-distilled (no alien reasoning patterns)
+#
+# Model-agnostic: same config works on Qwen3-VL-32B-Thinking, Qwen3.5-27B, etc.
+# Just swap the model_id.
+
+model:
+  model_id: Qwen/Qwen3-VL-32B-Thinking
+  trust_remote_code: true
+  torch_dtype: bfloat16
+
+data:
+  train_file: /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft_v2/sft_train.jsonl
+  dev_file:   /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_sft_v2/sft_dev.jsonl
+  max_seq_len: 2048
+  video_fps: 1.0
+  video_max_frames: 16
+
+lora:
+  r: 128
+  alpha: 128
+  dropout: 0.0
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  output_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen3vl32b_stemo_ambig_lora_v2
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8        # effective batch = 1 * 8 * 6 GPUs = 48
+  learning_rate: 1.0e-5                  # 10x lower than v1 — preservation regime
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  logging_steps: 1
+  eval_steps: 50
+  save_steps: 50                         # tighter cadence since only 1 epoch (~200 steps)
+  save_total_limit: 3
+  bf16: true
+  gradient_checkpointing: true
+  ddp_find_unused_parameters: false
+  remove_unused_columns: false
+  report_to: tensorboard
+  logging_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen3vl32b_stemo_ambig_lora_v2/runs
+  seed: 0

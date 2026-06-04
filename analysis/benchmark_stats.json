@@ -1,0 +1,38 @@
+{
+  "n_questions": 1056,
+  "n_videos": 80,
+  "k_distribution": {
+    "2": 441,
+    "3": 58,
+    "4": 148,
+    "5": 47,
+    "6": 99,
+    "7": 2,
+    "8": 17,
+    "9": 33,
+    "10": 20,
+    "12": 50,
+    "13": 12,
+    "14": 10,
+    "15": 15,
+    "16": 60,
+    "18": 10,
+    "21": 12,
+    "24": 10,
+    "42": 4,
+    "48": 4,
+    "56": 4
+  },
+  "k_mean": 6.118371212121212,
+  "k_median": 4,
+  "by_category": {
+    "repeated_temporal_referent/shared_attribute_different_entities": 550,
+    "repeated_temporal_referent/repeated_action": 244,
+    "repeated_temporal_referent/entities_in_same_event": 2,
+    "repeated_temporal_referent/same_entity_multiple_moments": 237,
+    "repeated_temporal_referent/multiple_entities": 2,
+    "repeated_temporal_referent/repeated_temporal_referent": 9,
+    "repeated_temporal_referent/repeated_entities": 1,
+    "repeated_temporal_referent/none": 11
+  }
+}

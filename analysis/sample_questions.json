@@ -1,0 +1,668 @@
+[
+  {
+    "id": "stemo_ambig_0059_qXH1dVI8Jic_seed_f097ac128e90_024",
+    "video_id": "0059_qXH1dVI8Jic",
+    "question": "Does the woman open number 7?",
+    "k_group": "k2",
+    "category": "repeated_temporal_referent",
+    "subcategory": "shared_attribute_different_entities",
+    "interpretations": [
+      {
+        "interpretation_id": "gal_gadot",
+        "referent_description": "Gal Gadot, the woman wearing a black corset top with floral embroidery",
+        "disambiguated_question": "Does Gal Gadot open number 7?",
+        "vlm_proposed_evidence_spans": [
+          [
+            291.0,
+            296.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "miley_cyrus",
+        "referent_description": "Miley Cyrus, the woman wearing a black and white checkered jumpsuit",
+        "disambiguated_question": "Does Miley Cyrus open number 7?",
+        "vlm_proposed_evidence_spans": [
+          [
+            291.0,
+            296.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": true,
+    "evidence_changes_across_interpretations": false,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "f097ac128e90",
+    "generation_notes": "Expanded from seed_04 with number=7. K=2 (Gal Gadot vs Miley Cyrus)."
+  },
+  {
+    "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_037",
+    "video_id": "0094_itC2lurwGGg",
+    "question": "Is red added before green?",
+    "k_group": "k2",
+    "category": "repeated_temporal_referent",
+    "subcategory": "repeated_action",
+    "interpretations": [
+      {
+        "interpretation_id": "green_dots",
+        "referent_description": "the first instance where green sand is added, which is to the circular spots on the wings",
+        "disambiguated_question": "Is the red sand added before the green sand that is applied to the small circular spots on the butterfly's wings?",
+        "vlm_proposed_evidence_spans": [
+          [
+            198.0,
+            203.0
+          ],
+          [
+            326.0,
+            330.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "green_tails",
+        "referent_description": "the second instance where green sand is added, which is to the tails at the bottom of the wings",
+        "disambiguated_question": "Is the red sand added before the green sand that is applied to the tail sections at the bottom of the butterfly's wings?",
+        "vlm_proposed_evidence_spans": [
+          [
+            326.0,
+            330.0
+          ],
+          [
+            341.0,
+            347.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": true,
+    "evidence_changes_across_interpretations": true,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "b615627da3c0",
+    "generation_notes": "Expanded from seed_13. Red is added once at ~3:26, while green is added twice (dots at ~1:58 and tails at ~3:41)."
+  },
+  {
+    "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_151",
+    "video_id": "0077_nBqyhpG5d98",
+    "question": "Is number 7 opened after number 9?",
+    "k_group": "k3",
+    "category": "repeated_temporal_referent",
+    "subcategory": "same_entity_multiple_moments",
+    "interpretations": [
+      {
+        "interpretation_id": "first_9",
+        "referent_description": "the first time the tile with number 9 is flipped and shown",
+        "disambiguated_question": "Is number 7 opened after the first time number 9 is opened?",
+        "vlm_proposed_evidence_spans": [
+          [
+            8.0,
+            10.0
+          ],
+          [
+            61.0,
+            63.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "second_9",
+        "referent_description": "the second time the tile with number 9 is flipped and shown",
+        "disambiguated_question": "Is number 7 opened after the second time number 9 is opened?",
+        "vlm_proposed_evidence_spans": [
+          [
+            28.0,
+            30.0
+          ],
+          [
+            61.0,
+            63.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "third_9",
+        "referent_description": "the third time the tile with number 9 is flipped and shown",
+        "disambiguated_question": "Is number 7 opened after the third time number 9 is opened?",
+        "vlm_proposed_evidence_spans": [
+          [
+            58.0,
+            60.0
+          ],
+          [
+            61.0,
+            63.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": false,
+    "evidence_changes_across_interpretations": true,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "c4a11eb87448",
+    "generation_notes": "Expanded from seed_76. The number 9 is opened three times (0:08, 0:28, 0:59), while number 7 is opened only once (1:01). This provides 3 interpretations for the 'after' variant."
+  },
+  {
+    "id": "stemo_ambig_0041_Yha3Zvw_bus_seed_967c3fe58d84_004",
+    "video_id": "0041_Yha3Zvw_bus",
+    "question": "Is the bag a cake?",
+    "k_group": "k4",
+    "category": "repeated_temporal_referent",
+    "subcategory": "shared_attribute_different_entities",
+    "interpretations": [
+      {
+        "interpretation_id": "bag_slot_1",
+        "referent_description": "the black briefcase-style bag located at slot 1",
+        "disambiguated_question": "Is the black briefcase-style bag at slot 1 a cake?",
+        "vlm_proposed_evidence_spans": [
+          [
+            211.0,
+            215.0
+          ],
+          [
+            331.0,
+            335.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "bag_slot_2",
+        "referent_description": "the pink quilted bag located at slot 2",
+        "disambiguated_question": "Is the pink quilted bag at slot 2 a cake?",
+        "vlm_proposed_evidence_spans": [
+          [
+            211.0,
+            215.0
+          ],
+          [
+            319.0,
+            321.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "bag_slot_3",
+        "referent_description": "the yellow woven bag located at slot 3",
+        "disambiguated_question": "Is the yellow woven bag at slot 3 a cake?",
+        "vlm_proposed_evidence_spans": [
+          [
+            211.0,
+            215.0
+          ],
+          [
+            322.0,
+            324.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "bag_slot_4",
+        "referent_description": "the two-tone beige and brown hobo bag located at slot 4",
+        "disambiguated_question": "Is the two-tone hobo bag at slot 4 a cake?",
+        "vlm_proposed_evidence_spans": [
+          [
+            211.0,
+            215.0
+          ],
+          [
+            330.0,
+            331.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": true,
+    "evidence_changes_across_interpretations": true,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "967c3fe58d84",
+    "generation_notes": "Expanded from seed_01. K=4 refers to the four numbered slots for the bags shown in the competition segment."
+  },
+  {
+    "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_123",
+    "video_id": "0077_nBqyhpG5d98",
+    "question": "Is number 5 opened after number 9?",
+    "k_group": "k9",
+    "category": "repeated_temporal_referent",
+    "subcategory": "same_entity_multiple_moments",
+    "interpretations": [
+      {
+        "interpretation_id": "5_1_9_1",
+        "referent_description": "the first opening of number 5 and the first opening of number 9",
+        "disambiguated_question": "Is the first time the number 5 is opened (around 11s) after the first time the number 9 is opened (around 8s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            8.0,
+            10.0
+          ],
+          [
+            11.0,
+            13.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_1_9_2",
+        "referent_description": "the first opening of number 5 and the second opening of number 9",
+        "disambiguated_question": "Is the first time the number 5 is opened (around 11s) after the second time the number 9 is opened (around 27s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            11.0,
+            13.0
+          ],
+          [
+            27.0,
+            28.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_1_9_3",
+        "referent_description": "the first opening of number 5 and the third opening of number 9",
+        "disambiguated_question": "Is the first time the number 5 is opened (around 11s) after the third time the number 9 is opened (around 58s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            11.0,
+            13.0
+          ],
+          [
+            58.0,
+            59.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_2_9_1",
+        "referent_description": "the second opening of number 5 and the first opening of number 9",
+        "disambiguated_question": "Is the second time the number 5 is opened (around 20s) after the first time the number 9 is opened (around 8s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            8.0,
+            10.0
+          ],
+          [
+            20.0,
+            22.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_2_9_2",
+        "referent_description": "the second opening of number 5 and the second opening of number 9",
+        "disambiguated_question": "Is the second time the number 5 is opened (around 20s) after the second time the number 9 is opened (around 27s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            20.0,
+            22.0
+          ],
+          [
+            27.0,
+            28.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_2_9_3",
+        "referent_description": "the second opening of number 5 and the third opening of number 9",
+        "disambiguated_question": "Is the second time the number 5 is opened (around 20s) after the third time the number 9 is opened (around 58s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            20.0,
+            22.0
+          ],
+          [
+            58.0,
+            59.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_3_9_1",
+        "referent_description": "the third opening of number 5 and the first opening of number 9",
+        "disambiguated_question": "Is the third time the number 5 is opened (around 57s) after the first time the number 9 is opened (around 8s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            8.0,
+            10.0
+          ],
+          [
+            57.0,
+            58.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_3_9_2",
+        "referent_description": "the third opening of number 5 and the second opening of number 9",
+        "disambiguated_question": "Is the third time the number 5 is opened (around 57s) after the second time the number 9 is opened (around 27s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            27.0,
+            28.0
+          ],
+          [
+            57.0,
+            58.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "5_3_9_3",
+        "referent_description": "the third opening of number 5 and the third opening of number 9",
+        "disambiguated_question": "Is the third time the number 5 is opened (around 57s) after the third time the number 9 is opened (around 58s)?",
+        "vlm_proposed_evidence_spans": [
+          [
+            57.0,
+            58.0
+          ],
+          [
+            58.0,
+            59.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": true,
+    "evidence_changes_across_interpretations": true,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "c4a11eb87448",
+    "generation_notes": "Expanded from seed_62. K=9 interpretations based on 3 openings each of the number 5 and number 9 tiles (excluding the gag reveal of 9 at 29s)."
+  },
+  {
+    "id": "stemo_ambig_0106_9jjYg2QStmU_seed_4983a2654363_015",
+    "video_id": "0106_9jjYg2QStmU",
+    "question": "Is the country shown 16th?",
+    "k_group": "k16",
+    "category": "repeated_temporal_referent",
+    "subcategory": "shared_attribute_different_entities",
+    "interpretations": [
+      {
+        "interpretation_id": "uzbekistan",
+        "referent_description": "the country Uzbekistan",
+        "disambiguated_question": "Is Uzbekistan the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "italy",
+        "referent_description": "the country Italy",
+        "disambiguated_question": "Is Italy the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "germany",
+        "referent_description": "the country Germany",
+        "disambiguated_question": "Is Germany the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "usa",
+        "referent_description": "the country USA",
+        "disambiguated_question": "Is USA the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "uk",
+        "referent_description": "the country UK",
+        "disambiguated_question": "Is UK the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "france",
+        "referent_description": "the country France",
+        "disambiguated_question": "Is France the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "greece",
+        "referent_description": "the country Greece",
+        "disambiguated_question": "Is Greece the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "portugal",
+        "referent_description": "the country Portugal",
+        "disambiguated_question": "Is Portugal the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "norway",
+        "referent_description": "the country Norway",
+        "disambiguated_question": "Is Norway the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "australia",
+        "referent_description": "the country Australia",
+        "disambiguated_question": "Is Australia the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "canada",
+        "referent_description": "the country Canada",
+        "disambiguated_question": "Is Canada the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "russia",
+        "referent_description": "the country Russia",
+        "disambiguated_question": "Is Russia the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "poland",
+        "referent_description": "the country Poland",
+        "disambiguated_question": "Is Poland the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "turkey",
+        "referent_description": "the country Turkey",
+        "disambiguated_question": "Is Turkey the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "brazil",
+        "referent_description": "the country Brazil",
+        "disambiguated_question": "Is Brazil the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "no",
+        "vlm_confidence": "high"
+      },
+      {
+        "interpretation_id": "netherlands",
+        "referent_description": "the country Netherlands",
+        "disambiguated_question": "Is Netherlands the country shown 16th?",
+        "vlm_proposed_evidence_spans": [
+          [
+            240.0,
+            255.0
+          ]
+        ],
+        "supporting_sub_question_ids": [],
+        "predicted_answer": "yes",
+        "vlm_confidence": "high"
+      }
+    ],
+    "answer_changes_across_interpretations": true,
+    "evidence_changes_across_interpretations": false,
+    "generator": "gemini-3-flash-preview",
+    "generator_prompt_version": "4983a2654363",
+    "generation_notes": "expanded from seed_00 with ordinal=16th and K=16 countries as referents"
+  }
+]

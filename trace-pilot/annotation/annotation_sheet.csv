@@ -1,0 +1,1 @@
+row_id,video_id,slice,prompt_variant,trace_length_tokens,cites_timestamps,cites_frames,revises_hypothesis,final_correct,right_answer_in_trace,trace_style,notes

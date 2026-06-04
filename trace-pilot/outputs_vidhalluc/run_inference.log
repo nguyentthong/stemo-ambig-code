@@ -1,0 +1,9 @@
+Loaded 67 examples from pilot_examples_v2.jsonl.
+Already complete: 42 calls. To run: 92 calls.
+[  1] slice=TSH vid=e2t_1Atddaw_clip_5_6 variant=A_plain think_chars=849 elapsed=7.5s
+[  2] slice=TSH vid=e2t_1Atddaw_clip_5_6 variant=B_cited think_chars=673 elapsed=5.1s
+[  3] slice=TSH vid=cMndipw7_As_clip_3_7 variant=A_plain think_chars=5108 elapsed=19.6s
+[  4] slice=TSH vid=cMndipw7_As_clip_3_7 variant=B_cited think_chars=2587 elapsed=11.0s
+[  5] slice=TSH vid=3X6eP273RoI_clip_2_3 variant=A_plain think_chars=1598 elapsed=10.1s
+[  6] slice=TSH vid=3X6eP273RoI_clip_2_3 variant=B_cited think_chars=1344 elapsed=7.6s
+[  7] slice=TSH vid=2fPWPaNrUEM_clip_4_5 variant=A_plain think_chars=1029 elapsed=6.4s

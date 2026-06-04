@@ -1,0 +1,34 @@
+# Large model artifacts — fetch from GCS
+checkpoints/
+data_v0/stemo_ambig_sft*/star_shards/
+data_v0/stemo_ambig_sft*/sft_train.jsonl
+data_v0/stemo_ambig_sft*/sft_dev.jsonl
+data_v0/stemo_ambig_sft*/star_predictions.jsonl
+data_v0/stemo_ambig_sft*/star_kept*.jsonl
+data_v0/stemo_ambig_sft/videos/
+data_v0/stemo_ambig_sft/ambig/per_video/
+eval_runs/*/shards/
+eval_runs/*/shards_*/
+eval_runs/*/stemo_ambig_predictions.jsonl
+eval_runs/*/stemo_ambig_traces.jsonl
+eval_runs/*/stemo_ambig_judgments.jsonl
+eval_runs/*/mvbench_predictions.jsonl
+eval_runs/*/videomme_predictions.jsonl
+# Keep metrics
+!eval_runs/*/stemo_ambig_metrics.json
+!eval_runs/*/videomme_metrics.json
+!eval_runs/*/mvbench_metrics.json
+
+# Runtime
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets
+.env
+.env.*
+
+# Local tmp
+tmp/
+dashboard_repo/
+code_repo/
