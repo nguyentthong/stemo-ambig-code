@@ -777,16 +777,44 @@ def build_dashboard() -> str:
                 continue
             except Exception:
                 pass
-        # No metrics yet — check if active (predictions being written)
+        # No metrics yet — compute live partial IAA from prediction file
         if pred.exists():
             try:
-                n = sum(1 for _ in open(pred))
+                n = 0
+                iaa_sum = 0.0
+                strict_n = 0
+                aar_n = 0
+                clar_n = 0
+                ft_n = 0
+                ft_correct = 0
+                for line in open(pred):
+                    if not line.strip(): continue
+                    r = json.loads(line)
+                    if r.get("error") or not r.get("score"): continue
+                    n += 1
+                    iaa_sum += r["score"]["iaa_score"]
+                    if r["score"]["strict_K_correct"]: strict_n += 1
+                    if r["score"]["aar_loose_correct"]: aar_n += 1
+                    if r["classification"]["category"] in {"clarified_scope", "clarified_vague"}:
+                        clar_n += 1
+                        ft_n += 1
+                        if r["score"]["follow_through_correct"]:
+                            ft_correct += 1
                 age_min = (time.time() - pred.stat().st_mtime) / 60
                 mark = "🟢" if age_min < 30 else "⚠️"
-                lines.append(f"| {label} | {mark} {n} preds | — | — | — | — | {n} |")
+                if n > 0:
+                    iaa_v = iaa_sum / n
+                    ft_str = f"{ft_correct/ft_n:.3f}" if ft_n > 0 else "—"
+                    lines.append(
+                        f"| {label} | {mark} **{iaa_v:.3f}** | {strict_n/n:.3f} | "
+                        f"{aar_n/n:.3f} | {clar_n/n:.3f} | {ft_str} | {n} (live) |"
+                    )
+                else:
+                    lines.append(f"| {label} | {mark} starting | — | — | — | — | 0 |")
                 continue
-            except Exception:
-                pass
+            except Exception as e:
+                lines.append(f"| {label} | ⚠️ partial-err | — | — | — | — | — |")
+                continue
         if iaa_running and tag in proc_blob:
             lines.append(f"| {label} | 🟢 starting | — | — | — | — | — |")
         else:
