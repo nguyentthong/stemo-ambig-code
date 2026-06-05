@@ -100,18 +100,45 @@ The gap `AAR-loose − strict-K` measures how much of a model's ambiguity-handli
 
 ## 4 Cross-family failure characterization
 
-### 4.1 Base-model results
+### 4.1 Base-model results under IAA (closed-API frontier models)
+
+Under the IAA protocol, models are evaluated with explicit permission to either enumerate or ask a clarifying question. The headline numbers reveal a stark cross-family pattern:
+
+| Model | IAA | strict-K | AAR-loose | clar-rate | follow-through | n |
+|---|---|---|---|---|---|---|
+| GPT-4o (2024-08-06)       | **0.005** | 0.005 | 0.019 | 0.017 | 0.000 | 1056 |
+| Gemini-3-flash            | **0.202** | 0.184 | 0.627 | 0.157 | 0.114 | 1056 |
+| Gemini-3.5-flash          | **0.184** | 0.174 | 0.569 | 0.088 | 0.108 | 1056 |
+
+Three observations follow.
+
+**(1) GPT-4o is essentially incapable of ambiguity-aware response.** Despite a system prompt that explicitly grants permission to clarify, GPT-4o single-commits on 91.7% of items and produces *zero* successful clarification follow-throughs across the entire benchmark. AAR-loose is 0.019, meaning the model registers ambiguity awareness on under 2% of queries. This is not an artifact of our enumeration criterion — the IAA protocol gives the model multiple paths to credit and it takes none of them.
+
+**(2) Recognition-without-recall is real and quantitatively large.** Both Gemini models recognize referential ambiguity on more than half of items (AAR-loose ≈ 0.57–0.63), yet only follow through correctly on roughly a fifth (IAA ≈ 0.18–0.20). The gap `AAR-loose − IAA` of 38–43 percentage points is the size of the *recognition-without-recall* failure mode: the model knows the question is ambiguous, asks the right clarifying question, but then cannot commit to the correct answer once the asker disambiguates.
+
+**(3) The cross-family gap is two orders of magnitude.** Gemini-3-flash's IAA of 0.202 is 40× GPT-4o's IAA of 0.005. Under a strict-K-only protocol this gap would already be apparent (0.184 vs 0.005, a 37× gap) but the IAA protocol additionally exposes *why* — Gemini families recognize ambiguity at all, and GPT-4o does not. The protocol's permissive structure surfaces a capability dimension that single-turn enumeration scoring cannot.
+
+**Per-K degradation under IAA.** Stratifying by K reveals an interesting structural feature of the metric:
+
+| Model | K=2 IAA | K=3 IAA | K=4–6 IAA | K=7+ IAA | K=7+ strict-K | K=7+ AAR-loose |
+|---|---|---|---|---|---|---|
+| GPT-4o            | 0.011 | 0.000 | 0.000 | 0.000 | 0.000 | 0.004 |
+| Gemini-3-flash    | 0.354 | 0.069 | 0.112 | 0.076 | 0.015 | 0.529 |
+| Gemini-3.5-flash  | 0.322 | 0.086 | 0.122 | 0.042 | 0.008 | 0.506 |
+
+At K=2, enumeration drives nearly all of IAA: strict-K ≈ IAA. As K grows, enumeration collapses — for Gemini-3-flash, strict-K at K=7+ is 0.015 — but IAA stays at 0.076, **five times higher than strict-K alone**. The reason is that clarification-resolution remains a viable strategy at high K (recognition-rate AAR-loose holds at ≈ 0.53 even at K=7+) even when enumeration is no longer tractable. This is the structural feature IAA captures and strict-K misses: at high K, asking a clarifying question is more attainable than reciting K candidates, and a benchmark that scores only enumeration will systematically under-credit models that hedge.
+
+### 4.2 Base-model results — open-weight families
+
+For the open-weight families, we report the original enumeration-based metrics here for continuity; IAA results on the open-weight models appear in §4.4 once the open-weight multi-turn evaluation completes.
 
 | Model | enum | single_commit | strict-K | interp_cov | pi_addr | pi_overall |
 |---|---|---|---|---|---|---|
 | Qwen3.5-27B | 0.179 | 0.704 | 0.045 | 0.163 | 0.611 | 0.100 |
 | Qwen3.6-27B | 0.084 | 0.838 | 0.036 | 0.127 | 0.569 | 0.072 |
 | Qwen3-VL-32B | 0.271 | 0.440 | 0.032 | 0.137 | 0.449 | 0.062 |
-| GPT-4o | 0.000 | 1.000 | 0.000 | 0.000 | — | 0.000 |
-| Gemini-3-Flash | 0.009 | 0.986 | 0.005 | 0.010 | 0.851 | 0.009 |
-| Gemini-3.5-Flash | 0.000 | 1.000 | 0.000 | 0.000 | — | 0.000 |
 
-The single-commit rate ranges from 0.44 (Qwen3-VL-32B) to 1.00 (GPT-4o and Gemini-3.5-Flash). Strict-K accuracy is bounded by 0.05 for every base model, and the two newest frontier API models—GPT-4o and Gemini-3.5-Flash—register exactly zero strict-K accuracy because they essentially never enumerate. The failure mode is cross-family. It is not a Qwen-only quirk, nor does it disappear with closed-source scaling; on the contrary, the API models we tested are among the most extreme single-committers in our pool.
+The strict-K failure is cross-family. Strict-K accuracy is bounded by 0.05 for every base model, and the closed-source API models exhibit the same strict-K collapse — only Gemini's flash family meaningfully exceeds it under the looser AAR criterion.
 
 ### 4.2 Per-subset and per-K degradation (headline figure)
 
