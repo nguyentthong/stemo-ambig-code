@@ -788,6 +788,43 @@ def build_dashboard() -> str:
                 continue
             except Exception:
                 pass
+        # No metrics yet — also check open-weight shard files
+        shard_files = list((REPO / f"eval_runs/{tag}/iaa_shards").glob("preds_*.jsonl")) if (REPO / f"eval_runs/{tag}/iaa_shards").exists() else []
+        if not pred.exists() and shard_files:
+            # Concatenate shard records in-memory for live partial metrics
+            try:
+                n = 0
+                iaa_sum = 0.0
+                strict_n = aar_n = clar_n = ft_n = ft_correct = 0
+                latest_mtime = 0
+                for sf in shard_files:
+                    latest_mtime = max(latest_mtime, sf.stat().st_mtime)
+                    for line in open(sf):
+                        if not line.strip(): continue
+                        r = json.loads(line)
+                        if r.get("error") or not r.get("score"): continue
+                        n += 1
+                        iaa_sum += r["score"]["iaa_score"]
+                        if r["score"]["strict_K_correct"]: strict_n += 1
+                        if r["score"]["aar_loose_correct"]: aar_n += 1
+                        if r["classification"]["category"] in {"clarified_scope", "clarified_vague"}:
+                            clar_n += 1; ft_n += 1
+                            if r["score"]["follow_through_correct"]: ft_correct += 1
+                age_min = (time.time() - latest_mtime) / 60 if latest_mtime else 999
+                mark = "🟢" if age_min < 30 else "⚠️"
+                if n > 0:
+                    iaa_v = iaa_sum / n
+                    ft_str = f"{ft_correct/ft_n:.3f}" if ft_n > 0 else "—"
+                    lines.append(
+                        f"| {label} | {mark} **{iaa_v:.3f}** | {strict_n/n:.3f} | "
+                        f"{aar_n/n:.3f} | {clar_n/n:.3f} | {ft_str} | {n} (live shards) |"
+                    )
+                else:
+                    lines.append(f"| {label} | {mark} starting (sharded) | — | — | — | — | 0 |")
+                continue
+            except Exception:
+                pass
+
         # No metrics yet — compute live partial IAA from prediction file
         if pred.exists():
             try:
