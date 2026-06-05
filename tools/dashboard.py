@@ -414,7 +414,7 @@ def build_dashboard() -> str:
     try:
         proc = subprocess.run(
             ["pgrep", "-af",
-             "run_qwen_video|run_internvl_video|train_sft|train_rl|judge_stemo|run_mcq|run_stemo|chain_v4|paraphrase_questions|star_filter|maximal_prompting|paraphrase_ablation|prompt_sensitivity|extended_chains|fft_variant|chain_v3"],
+             "run_qwen_video|run_internvl_video|train_sft|train_rl|judge_stemo|run_mcq|run_stemo|chain_v4|paraphrase_questions|star_filter|maximal_prompting|paraphrase_ablation|prompt_sensitivity|extended_chains|fft_variant|chain_v3|run_iaa_closed|run_iaa_open"],
             capture_output=True, text=True, timeout=4,
         )
         procs = [l for l in proc.stdout.splitlines() if l.strip()]
@@ -440,8 +440,21 @@ def build_dashboard() -> str:
                 and ("accelerate" in proc_blob or "train_sft" in proc_blob)
                 and not adapter_done(tag, "v4")):
             running_now.add(("pipeline", tag, "train"))
-        if f"eval_runs/{tag}_v4" in proc_blob and "run_qwen_video" in proc_blob:
-            running_now.add(("pipeline", tag, "v4_eval"))
+        if f"eval_runs/{tag}_v4" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+            # Distinguish base (no adapter) vs LoRA-merged, and which benchmark
+            base_run = f"eval_runs/{tag}_v4_base/" in proc_blob
+            lora_run = (f"eval_runs/{tag}_v4/" in proc_blob and f"eval_runs/{tag}_v4_base/" not in proc_blob) \
+                       or (f"eval_runs/{tag}_v4/" in proc_blob and f"eval_runs/{tag}_v4_base/" in proc_blob)
+            if "shards_mvbench" in proc_blob:
+                bench = "MVBench"
+            elif "shards_videomme" in proc_blob:
+                bench = "VideoMME"
+            else:
+                bench = "STEMO-Ambig"
+            if base_run:
+                running_now.add(("pipeline", tag, f"v4_eval_base_{bench}"))
+            if lora_run:
+                running_now.add(("pipeline", tag, f"v4_eval_lora_{bench}"))
         if "train_rl_grpo" in proc_blob and tag in proc_blob:
             running_now.add(("pipeline", tag, "v5"))
     # Ablations
@@ -472,6 +485,8 @@ def build_dashboard() -> str:
     main_job_keywords = [
         ("v5 RL", "train_rl_grpo"),
         ("Training", "train_sft"),
+        ("IAA multi-turn", "run_iaa_closed"),
+        ("IAA multi-turn (open)", "run_iaa_open"),
         ("Sampling/inference", "run_qwen_video"),
         ("InternVL inference", "run_internvl_video"),
         ("Judge", "judge_stemo_traces"),
@@ -507,14 +522,20 @@ def build_dashboard() -> str:
                 items.append(nice_names.get(key, f"Ablation {key[1]}"))
             elif key[0] == "pipeline":
                 _, tag, phase = key
-                phase_label = {
+                static_labels = {
                     "chain": "v4 chain (wrapping)",
                     "sample": "v4 sampling (STaR rollouts)",
                     "filter": "v4 Gemini judge filter",
                     "train": "v4 LoRA training",
                     "v4_eval": "v4 STEMO-Ambig eval",
                     "v5": "v5 GRPO RL training",
-                }.get(phase, phase)
+                }
+                if phase.startswith("v4_eval_base_"):
+                    phase_label = f"v4 BASE eval — {phase.split('_')[-1]}"
+                elif phase.startswith("v4_eval_lora_"):
+                    phase_label = f"v4 LoRA eval — {phase.split('_')[-1]}"
+                else:
+                    phase_label = static_labels.get(phase, phase)
                 items.append(f"{tag} — {phase_label}")
         for it in items:
             lines.append(f"  - 🟢 {it}")
@@ -633,21 +654,41 @@ def build_dashboard() -> str:
         # v4 strict + MCQ
         m = get_metrics(f"{tag}_v4")
         v4_strict = f"{m['strict_ambig_aware_accuracy']:.3f}" if m else "—"
-        videomme_f = REPO / f"eval_runs/{tag}_v4/videomme_metrics.json"
-        vm_acc = "—"
-        if videomme_f.exists():
-            try:
-                vm_acc = f"{json.loads(videomme_f.read_text())['accuracy']:.3f}"
-            except Exception:
-                pass
-        mvb_f = REPO / f"eval_runs/{tag}_v4/mvbench_metrics.json"
-        mvb_acc = "—"
-        if mvb_f.exists():
-            try:
-                v = json.loads(mvb_f.read_text())["accuracy"]
-                mvb_acc = f"{v:.3f}" if v > 0.001 else "0.000 ⚠️"
-            except Exception:
-                pass
+        def _bench_cell(tag, bench_dir, bench_name, metrics_file):
+            """Return cell value: metric if file exists; else 🟢 progress if shards actively writing; else —."""
+            f = REPO / f"eval_runs/{tag}_v4/{metrics_file}"
+            if f.exists():
+                try:
+                    v = json.loads(f.read_text())["accuracy"]
+                    return f"{v:.3f}" if v > 0.001 else "0.000 ⚠️"
+                except Exception:
+                    return "—"
+            # Check if BOTH lora and base shards are actively being written
+            shard_dir = REPO / f"eval_runs/{tag}_v4/{bench_dir}"
+            base_shard_dir = REPO / f"eval_runs/{tag}_v4_base/{bench_dir}"
+            now = time.time()
+            done_lines, total_lines, recent = 0, 0, False
+            for sd in (shard_dir, base_shard_dir):
+                if not sd.exists():
+                    continue
+                for p in sd.glob("preds_*.jsonl"):
+                    try:
+                        st = p.stat()
+                        if now - st.st_mtime < 1800:
+                            recent = True
+                        with open(p) as fh:
+                            done_lines += sum(1 for _ in fh)
+                    except Exception:
+                        pass
+            running_eval = any(k[0] == "pipeline" and k[1] == tag and isinstance(k[2], str)
+                               and k[2].startswith("v4_eval_") and k[2].endswith(bench_name)
+                               for k in running_now)
+            if running_eval or recent:
+                return f"🟢 {done_lines}"
+            return "—"
+
+        vm_acc = _bench_cell(tag, "shards_videomme", "VideoMME", "videomme_metrics.json")
+        mvb_acc = _bench_cell(tag, "shards_mvbench", "MVBench", "mvbench_metrics.json")
 
         # v5 — mark 🚫 if out of scope
         if "v5" not in scope:
@@ -701,6 +742,59 @@ def build_dashboard() -> str:
             lines.append(f"| {label} | — | — | — | — | — |")
     lines.append("")
 
+    # Interactive Ambig-Aware Accuracy (IAA) — multi-turn protocol
+    lines.append("## IAA — Interactive Ambig-Aware Accuracy")
+    lines.append("")
+    lines.append("_Multi-turn protocol (PROTOCOL_IAA.md): turn-1 inference, sub-judge classifies, turn-2 disambiguator if clarified. **IAA is the headline benchmark metric**; strict-K and AAR-loose are diagnostic sub-metrics._")
+    lines.append("")
+    iaa_runs = [
+        ("gemini3flash_iaa",    "Gemini-3-flash (base)"),
+        ("gemini35flash_iaa",   "Gemini-3.5-flash (base)"),
+        ("gpt4o_iaa",           "GPT-4o (base)"),
+        ("qwen35_iaa_base",     "Qwen3.5-27B base"),
+        ("qwen35_iaa_v4",       "Qwen3.5-27B v4"),
+        ("qwen36_iaa_base",     "Qwen3.6-27B base"),
+        ("qwen36_iaa_v4",       "Qwen3.6-27B v4"),
+        ("qwen3vl32b_iaa_base", "Qwen3-VL-32B base"),
+        ("qwen3vl32b_iaa_v4",   "Qwen3-VL-32B v4"),
+    ]
+    lines.append("| Model | IAA | strict-K | AAR-loose | clar-rate | follow-through | n |")
+    lines.append("|---|---|---|---|---|---|---|")
+    iaa_running = "run_iaa_closed.py" in proc_blob or "run_iaa_open.py" in proc_blob
+    for tag, label in iaa_runs:
+        mp = REPO / f"eval_runs/{tag}/iaa_metrics.json"
+        pred = REPO / f"eval_runs/{tag}/iaa_predictions.jsonl"
+        if mp.exists():
+            try:
+                m = json.loads(mp.read_text())
+                ft = m.get("follow_through_rate")
+                ft_str = f"{ft:.3f}" if isinstance(ft, (int, float)) else "—"
+                lines.append(
+                    f"| {label} | **{m.get('iaa', 0):.3f}** | {m.get('strict_K', 0):.3f} | "
+                    f"{m.get('aar_loose', 0):.3f} | {m.get('clarification_rate', 0):.3f} | "
+                    f"{ft_str} | {m.get('n', 0)} |"
+                )
+                continue
+            except Exception:
+                pass
+        # No metrics yet — check if active (predictions being written)
+        if pred.exists():
+            try:
+                n = sum(1 for _ in open(pred))
+                age_min = (time.time() - pred.stat().st_mtime) / 60
+                mark = "🟢" if age_min < 30 else "⚠️"
+                lines.append(f"| {label} | {mark} {n} preds | — | — | — | — | {n} |")
+                continue
+            except Exception:
+                pass
+        if iaa_running and tag in proc_blob:
+            lines.append(f"| {label} | 🟢 starting | — | — | — | — | — |")
+        else:
+            lines.append(f"| {label} | — | — | — | — | — | — |")
+    lines.append("")
+    lines.append("_IAA = headline. Asks: can the model EITHER enumerate K interpretations OR clarify and then answer correctly when disambiguated? See `docs/PROTOCOL_IAA.md`._")
+    lines.append("")
+
     # Ablations
     lines.append("## Ablations")
     lines.append("")
@@ -748,6 +842,15 @@ def build_dashboard() -> str:
         ("paraphrase ablation", REPO / "tmp/paraphrase_ablation.log"),
         ("prompt sensitivity", REPO / "tmp/prompt_sensitivity_ablation.log"),
         ("qwen36 MVBench rerun", REPO / "tmp/qwen36_mvbench_rerun.log"),
+        ("IAA gemini-3-flash", REPO / "tmp/iaa_gemini3flash.log"),
+        ("IAA gemini-3.5-flash", REPO / "tmp/iaa_gemini35flash.log"),
+        ("IAA gpt-4o", REPO / "tmp/iaa_gpt4o.log"),
+        ("IAA qwen35 base", REPO / "tmp/iaa_qwen35_base.log"),
+        ("IAA qwen35 v4", REPO / "tmp/iaa_qwen35_v4.log"),
+        ("IAA qwen36 base", REPO / "tmp/iaa_qwen36_base.log"),
+        ("IAA qwen36 v4", REPO / "tmp/iaa_qwen36_v4.log"),
+        ("IAA qwen3vl32b base", REPO / "tmp/iaa_qwen3vl32b_base.log"),
+        ("IAA qwen3vl32b v4", REPO / "tmp/iaa_qwen3vl32b_v4.log"),
     ]
     six_hr_ago = time.time() - 6 * 3600
     for name, path in log_paths:
@@ -858,6 +961,69 @@ def build_dashboard() -> str:
             lines.append(f"- **{latest.get('title','')}**")
             lines.append(f"- Action: {latest.get('action','')}")
             lines.append("")
+
+    # GCS upload progress
+    uploads_dir = REPO / "tmp/uploads"
+    if uploads_dir.exists():
+        lines.append("## GCS upload progress")
+        lines.append("")
+        lines.append("_Tar+upload of large artifacts to `gs://video_data_bucket-19052026/` for portability. Local tarballs in `tmp/uploads/`, uploaded once tar completes._")
+        lines.append("")
+        lines.append("| Tarball | Local size | Local last write | GCS uploaded |")
+        lines.append("|---|---|---|---|")
+        UPLOADS = [
+            ("stemo_ambig_adapters.tar.gz", "adapters_runner.log", "LoRA adapters"),
+            ("stemo_ambig_eval_runs.tar.gz", "eval_runner.log", "eval predictions+judgments"),
+            ("stemo_ambig_sft_data.tar.gz", "sft_data_runner.log", "SFT training data"),
+            ("stemo_ambig_sft_videos.tar.gz", "sft_videos_runner.log", "SFT videos (NextQA clips, ~2.9 GB)"),
+        ]
+        for tarname, logname, desc in UPLOADS:
+            local = uploads_dir / tarname
+            log = uploads_dir / logname
+            # Local
+            if local.exists():
+                size_mb = local.stat().st_size / (1024 * 1024)
+                size_str = f"{size_mb/1024:.2f} GB" if size_mb > 1024 else f"{size_mb:.0f} MB"
+                age_min = (time.time() - local.stat().st_mtime) / 60
+                if age_min < 1:
+                    age_str = f"{int(age_min*60)}s ago 🟢 packing"
+                elif age_min < 10:
+                    age_str = f"{age_min:.1f}m ago"
+                else:
+                    age_str = f"{age_min:.0f}m ago ✓ tar done"
+            else:
+                size_str = "—"; age_str = "not yet"
+            # Upload
+            upload_status = "—"
+            if log.exists():
+                try:
+                    txt = log.read_text()
+                    if "UPLOAD_DONE" in txt:
+                        # find size from gsutil ls
+                        try:
+                            r = subprocess.run(
+                                ["gsutil", "ls", "-lh",
+                                 f"gs://video_data_bucket-19052026/{tarname}"],
+                                capture_output=True, text=True, timeout=8)
+                            for line in r.stdout.splitlines():
+                                if tarname in line and "MiB" in line or "GiB" in line:
+                                    parts = line.split()
+                                    upload_status = f"✅ {parts[0]} {parts[1]}"
+                                    break
+                            else:
+                                upload_status = "✅ uploaded"
+                        except Exception:
+                            upload_status = "✅ uploaded"
+                    elif "TAR_DONE" in txt:
+                        upload_status = "🟢 uploading"
+                    else:
+                        upload_status = "🟢 tarring"
+                except Exception:
+                    pass
+            lines.append(f"| `{tarname}` ({desc}) | {size_str} | {age_str} | {upload_status} |")
+        lines.append("")
+        lines.append(f"_Bootstrap on new server: `gsutil -m cp gs://video_data_bucket-19052026/stemo_ambig_*.tar.gz . && for f in stemo_ambig_*.tar.gz; do tar -xzf $f; done`_")
+        lines.append("")
 
     # Paper status
     lines.append("## Paper")

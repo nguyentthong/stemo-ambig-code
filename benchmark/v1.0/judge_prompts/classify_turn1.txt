@@ -1,0 +1,30 @@
+You are classifying a model's response to a video-QA question for a referential-ambiguity benchmark.
+
+Question: {question}
+
+Gold interpretations of the question (each names a distinct referent the question could pick out):
+{interp_block}
+
+Model response:
+"""{response}"""
+
+Classify the response into EXACTLY ONE of these categories:
+
+- "enumerated": The response explicitly lists ≥2 candidate referents AND provides an answer (Yes/No or equivalent) for each. The referent descriptions should plausibly correspond to the gold interpretations.
+
+- "clarified_scope": The response asks the asker to clarify, AND it explicitly names the ambiguous noun/phrase from the question. Examples: "Which boy do you mean?", "Which color?", "Which point in the video?". The named phrase must correspond to the part of the question that admits multiple interpretations (e.g. for "Does the boy fall?" with gold referents about boys, asking "which boy?" qualifies; asking "what kind of fall?" does not).
+
+- "clarified_vague": The response acknowledges ambiguity or asks for clarification WITHOUT naming the specific ambiguous noun/phrase. Examples: "Which one?", "Can you be more specific?", "I am not sure which you mean.". Generic hedges qualify here, not under clarified_scope.
+
+- "single_commit": The response gives a single Yes/No (or commits to one referent) without acknowledging the ambiguity.
+
+- "refused": The model declines to answer, produces off-topic content, errors out, or otherwise provides no scorable answer.
+
+Additionally extract:
+- "enumerated_count": int. If category is "enumerated", how many distinct referent-answer pairs the response provides; else 0.
+- "enumerated_matches": list of {{"referent_description": str, "decision": "yes"|"no"|"unknown"}}. If category is "enumerated", one entry per enumerated pair; else [].
+- "ambiguous_phrase": str. If category is clarified_scope, the specific noun/phrase the model named (e.g. "boy", "color"); else "".
+
+Return STRICT JSON only. No prose, no backticks.
+
+{{"category": "...", "enumerated_count": 0, "enumerated_matches": [], "ambiguous_phrase": ""}}

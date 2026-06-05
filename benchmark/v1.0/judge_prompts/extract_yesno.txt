@@ -1,0 +1,18 @@
+You are extracting a model's yes/no decision for a referentially disambiguated video question.
+
+Original (ambiguous) question: {question}
+Specific referent the asker meant: {referent_description}
+Disambiguated question (effective meaning): {disambig_question}
+
+Model response:
+"""{response}"""
+
+What is the model's yes/no decision for the disambiguated question?
+
+Return STRICT JSON only:
+{{"decision": "yes"|"no"|"unknown"}}
+
+Rules:
+- "yes" / "no" only when the model commits clearly.
+- "unknown" if the model hedges, asks another clarifying question, says "cannot determine", contradicts itself, or never commits.
+- A long explanation that ends in a clear yes/no commitment is fine — extract the final commitment.
