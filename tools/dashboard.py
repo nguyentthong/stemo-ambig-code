@@ -380,6 +380,15 @@ def build_dashboard() -> str:
     n_fft = sum(1 for tag, _, _bt, _scope in MODEL_PIPELINES if get_metrics(f"{tag}_fft_v4"))
     n_blackbox = sum(1 for tag, _ in BLACK_BOX if get_metrics(tag))
     n_ablations = sum(1 for tag, _ in ABLATIONS if get_metrics(tag))
+    # IAA runs: 3 closed-API + 6 open-weight (qwen3vl32b/qwen36/qwen35 each base+v4)
+    iaa_run_tags = [
+        "gpt4o_iaa", "gemini3flash_iaa", "gemini35flash_iaa",
+        "qwen35_iaa_base", "qwen35_iaa_v4",
+        "qwen36_iaa_base", "qwen36_iaa_v4",
+        "qwen3vl32b_iaa_base", "qwen3vl32b_iaa_v4",
+    ]
+    n_iaa = sum(1 for t in iaa_run_tags if (REPO / f"eval_runs/{t}/iaa_metrics.json").exists())
+    n_iaa_targets = len(iaa_run_tags)
 
     # Total target counts only in-scope cells (v5 only for some models, FFT only for some)
     total_target = (len(MODEL_PIPELINES)  # base
@@ -388,11 +397,12 @@ def build_dashboard() -> str:
                     + n_v5_targets         # v5 (only some models)
                     + n_fft_targets        # FFT (only some)
                     + len(BLACK_BOX)
-                    + len(ABLATIONS))
-    completed = n_base + n_v3 + n_v4 + n_v5 + n_fft + n_blackbox + n_ablations
+                    + len(ABLATIONS)
+                    + n_iaa_targets)
+    completed = n_base + n_v3 + n_v4 + n_v5 + n_fft + n_blackbox + n_ablations + n_iaa
     lines.append("## Overall progress")
     lines.append("")
-    lines.append("_Total experiments we are running for the paper, across all six open-weight models, three closed-source APIs, and ten ablation studies._")
+    lines.append("_Total experiments we are running for the paper, across all six open-weight models, three closed-source APIs, ten ablation studies, and nine IAA multi-turn evaluations._")
     lines.append("")
     lines.append(f"{bar(completed, total_target, width=40)}  ({completed}/{total_target} cells)")
     lines.append("")
@@ -406,6 +416,7 @@ def build_dashboard() -> str:
     lines.append(f"| v5 RL            | {bar(n_v5, n_v5_targets, 20)}  {n_v5}/{n_v5_targets} _(scoped: 4 mid-large models)_ |")
     lines.append(f"| Black-box (base) | {bar(n_blackbox, len(BLACK_BOX), 20)}  {n_blackbox}/{len(BLACK_BOX)} |")
     lines.append(f"| Ablations        | {bar(n_ablations, len(ABLATIONS), 20)}  {n_ablations}/{len(ABLATIONS)} |")
+    lines.append(f"| IAA (headline)   | {bar(n_iaa, n_iaa_targets, 20)}  {n_iaa}/{n_iaa_targets} _(3 closed + 6 open-weight)_ |")
     lines.append("")
     lines.append("**Target venue:** ARR August 2026 (deadline 3 Aug → EMNLP)")
     lines.append("")
