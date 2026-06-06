@@ -1,0 +1,33 @@
+model:
+  model_id: Qwen/Qwen3.5-9B
+  adapter_init: null   # no v4 adapter for 9B; init fresh LoRA from base
+  torch_dtype: bfloat16
+data:
+  train_file: /home/thong/weride_project/weride/overthinking_hallu/data_v0/stemo_ambig_rl/rl_train.jsonl
+  video_max_frames: 16
+  video_fps: 1.0
+rl:
+  algorithm: grpo
+  n_rollouts: 4
+  temperature: 0.8
+  max_new_tokens: 2048
+  kl_beta: 0.04
+  reward_fn: rl_reward.combined_reward
+lora:
+  r: 64
+  alpha: 64
+  dropout: 0.0
+training:
+  output_dir: /home/thong/weride_project/weride/overthinking_hallu/checkpoints/qwen35_9b_stemo_ambig_lora_v5
+  num_train_epochs: 3
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 1.0e-6
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.05
+  logging_steps: 5
+  save_steps: 200
+  save_total_limit: 3
+  bf16: true
+  gradient_checkpointing: true
+  seed: 0

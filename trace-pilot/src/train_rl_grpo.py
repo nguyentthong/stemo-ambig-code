@@ -113,8 +113,22 @@ def main():
     model = AutoModelForImageTextToText.from_pretrained(
         model_id, torch_dtype=torch.bfloat16, trust_remote_code=True,
     )
-    # Load v4 LoRA adapter as starting policy
-    model = PeftModel.from_pretrained(model, adapter_init, is_trainable=True)
+    # Load v4 LoRA adapter as starting policy (if provided), else attach fresh LoRA
+    if adapter_init:
+        model = PeftModel.from_pretrained(model, adapter_init, is_trainable=True)
+    else:
+        lora_cfg = cfg.get("lora", {})
+        lora_target = LoraConfig(
+            r=lora_cfg.get("r", 64),
+            lora_alpha=lora_cfg.get("alpha", 64),
+            lora_dropout=lora_cfg.get("dropout", 0.0),
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+        from peft import get_peft_model
+        model = get_peft_model(model, lora_target)
+        print(f"[v5] fresh LoRA: r={lora_cfg.get('r', 64)}", flush=True)
 
     # Build dataset
     rows = [json.loads(l) for l in Path(cfg["data"]["train_file"]).read_text().splitlines() if l.strip()]
@@ -133,7 +147,11 @@ def main():
         save_steps=cfg["training"]["save_steps"],
         save_total_limit=cfg["training"]["save_total_limit"],
         bf16=cfg["training"]["bf16"],
-        gradient_checkpointing=cfg["training"]["gradient_checkpointing"],
+        # gradient_checkpointing=False — both reentrant AND non-reentrant modes hit
+        # CheckpointError on Qwen3.5 + bf16 + Zero-3 (recomputed values have different
+        # metadata, suggests numerical drift in attention kernel). Memory budget instead
+        # relies on minimal rollouts (n=2 × 1024 tokens) + 8-way Zero-3 sharding.
+        gradient_checkpointing=False,
         num_generations=cfg["rl"]["n_rollouts"],
         temperature=cfg["rl"]["temperature"],
         max_completion_length=cfg["rl"]["max_new_tokens"],
