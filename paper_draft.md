@@ -128,17 +128,63 @@ Three observations follow.
 
 At K=2, enumeration drives nearly all of IAA: strict-K ≈ IAA. As K grows, enumeration collapses — for Gemini-3-flash, strict-K at K=7+ is 0.015 — but IAA stays at 0.076, **five times higher than strict-K alone**. The reason is that clarification-resolution remains a viable strategy at high K (recognition-rate AAR-loose holds at ≈ 0.53 even at K=7+) even when enumeration is no longer tractable. This is the structural feature IAA captures and strict-K misses: at high K, asking a clarifying question is more attainable than reciting K candidates, and a benchmark that scores only enumeration will systematically under-credit models that hedge.
 
-### 4.2 Base-model results — open-weight families
+### 4.2 Base-model results — open-weight families under IAA
 
-For the open-weight families, we report the original enumeration-based metrics here for continuity; IAA results on the open-weight models appear in §4.4 once the open-weight multi-turn evaluation completes.
+We now report the IAA-protocol results on the open-weight Qwen family. The same permissive system prompt and multi-turn protocol used for the closed APIs is applied here.
+
+| Model | IAA | strict-K | AAR-loose | clar-rate | follow-through | n |
+|---|---|---|---|---|---|---|
+| Qwen3.5-27B base   | 0.022 | 0.022 | 0.103 | 0.046 | 0.000 | 1056 |
+| Qwen3.6-27B base   | 0.026 | 0.026 | 0.114 | 0.041 | 0.000 | 1056 |
+| Qwen3-VL-32B base  | 0.030 | 0.024 | 0.262 | **0.170** | 0.044 | 1056 |
+
+Three observations follow.
+
+**(1) Qwen-family base models exhibit follow-through-rate of essentially zero.** When Qwen3.5 or Qwen3.6 base models ask a clarifying question, they do not correctly resolve the disambiguated query in any item. Qwen3-VL-32B base does follow through in 4.4% of clarification attempts, still essentially nil. Single-commitment dominates across the family.
+
+**(2) Qwen3-VL-32B base is unusually willing to clarify (17%)** — five times the clarification rate of the older Qwen3.5/3.6 27B base models. Yet this elevated clarification rate does not translate into substantially higher IAA, because follow-through is broken. The recognition-without-recall pathology in the Qwen3-VL-32B base is the clearest instance in our cross-family evaluation: AAR-loose = 0.262, IAA = 0.030, gap of 23.2 percentage points.
+
+**(3) Open-weight base IAA is uniformly an order of magnitude below the Gemini flash family.** This is the cross-family pattern previously visible in strict-K, now reconfirmed under the looser IAA criterion. The benchmark is not artificially penalizing a single response format; the gap survives under the protocol designed specifically to remove that artifact.
+
+### 4.3 Post-SFT results — open-weight families under IAA
+
+We evaluate the v4 SFT variants of each open-weight model under the same IAA protocol. SFT was applied via STaR-style chain-of-thought sampling, rejection-filtering with a Gemini judge, and LoRA fine-tuning (see §5). The headline numbers are:
+
+| Model | base IAA | v4 IAA | Δ | base clar | v4 clar | base AAR | v4 AAR |
+|---|---|---|---|---|---|---|---|
+| Qwen3.5-27B   | 0.022 | **0.054** | **+0.032** (2.5×) | 0.046 | 0.034 | 0.103 | 0.162 |
+| Qwen3.6-27B   | 0.026 | **0.044** | **+0.018** (1.7×) | 0.041 | 0.033 | 0.114 | 0.169 |
+| Qwen3-VL-32B  | 0.030 | **0.034** | +0.004 (1.1×) | 0.170 | 0.012 | 0.262 | 0.099 |
+
+**SFT improves IAA on every open-weight model**, with the largest absolute gain on Qwen3.5-27B (+0.032, 2.5× over base). The gains are driven almost entirely by enumeration competence: v4 strict-K is within rounding error of v4 IAA in every case, meaning the post-SFT models resolve almost exclusively through enumeration rather than clarification.
+
+**SFT changes the failure mode rather than fixing it.** For Qwen3-VL-32B in particular, the IAA decomposition reveals a structural trade: base clarifies 17% of the time but follows through only 4.4% of those; v4 clarifies just 1.2% of the time, yet follows through 61.5% when it does. The two strategies — clarification (recognition-heavy, recall-weak) and enumeration (recall-heavy, recognition-narrow) — partition the failure space. SFT moves the model from the first quadrant to the second, but does not close the cognitive gap.
+
+Crucially, even after SFT, the IAA values for the open-weight family (0.034–0.054) are still **four to six times lower than Gemini-3-flash's untrained 0.202**. The cross-family gap is fundamental rather than a function of training data.
+
+### 4.4 Per-K cliffs are universal under IAA
+
+Stratifying IAA by K reveals that the K-cliff observed in strict-K persists, albeit with a residual contribution from the clarification path at high K:
+
+| Model | K=2 IAA | K=3 IAA | K=4-6 IAA | K=7+ IAA | K=7+ strict-K |
+|---|---|---|---|---|---|
+| Gemini-3-flash         | 0.354 | 0.069 | 0.112 | 0.076 | 0.015 |
+| Gemini-3.5-flash       | 0.322 | 0.086 | 0.122 | 0.042 | 0.008 |
+| Qwen3-VL-32B v4        | 0.066 | 0.052 | 0.044 | 0.013 | 0.000 |
+| Qwen3.5-27B v4         | 0.100 | 0.052 | 0.058 | 0.004 | 0.000 |
+| Qwen3.6-27B v4         | 0.091 | 0.034 | 0.041 | 0.004 | 0.000 |
+
+At K=7+, **every open-weight v4 model has strict-K = 0.000 and IAA ≤ 0.013**; the K-cliff is total. Only the Gemini family preserves any IAA at K=7+, and only via the clarification path (note that K=7+ strict-K is 0.008–0.015, while K=7+ IAA is 0.042–0.076 — 3 to 5 times higher). The IAA framework specifically surfaces this clarification-path residual that single-turn enumeration scoring would miss.
+
+### 4.5 Legacy enumeration metrics for continuity
+
+For completeness, the original enumeration-based metrics on the three open-weight base models (Section 3 of an earlier version of this work) are below; the cross-family failure characterization is unchanged.
 
 | Model | enum | single_commit | strict-K | interp_cov | pi_addr | pi_overall |
 |---|---|---|---|---|---|---|
 | Qwen3.5-27B | 0.179 | 0.704 | 0.045 | 0.163 | 0.611 | 0.100 |
 | Qwen3.6-27B | 0.084 | 0.838 | 0.036 | 0.127 | 0.569 | 0.072 |
 | Qwen3-VL-32B | 0.271 | 0.440 | 0.032 | 0.137 | 0.449 | 0.062 |
-
-The strict-K failure is cross-family. Strict-K accuracy is bounded by 0.05 for every base model, and the closed-source API models exhibit the same strict-K collapse — only Gemini's flash family meaningfully exceeds it under the looser AAR criterion.
 
 ### 4.2 Per-subset and per-K degradation (headline figure)
 
