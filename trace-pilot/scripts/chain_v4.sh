@@ -10,7 +10,7 @@ case "$TAG" in
   qwen35)     MID="Qwen/Qwen3.5-27B"      ;;
   qwen36)     MID="Qwen/Qwen3.6-27B"      ;;
   qwen3vl32b) MID="Qwen/Qwen3-VL-32B-Thinking" ;;
-  qwen36_9b)  MID="Qwen/Qwen3.6-9B"       ;;
+  qwen36_9b)  MID="Qwen/Qwen3.5-9B"       ;;  # Qwen3.6 has no 9B variant; using closest Qwen3.5-9B for smaller-scale comparison
   internvl38b)MID="OpenGVLab/InternVL3_5-38B" ;;
   internvl8b) MID="OpenGVLab/InternVL3_5-8B"  ;;
   *) echo "unknown tag $TAG"; exit 1 ;;
