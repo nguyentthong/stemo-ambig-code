@@ -364,16 +364,24 @@ def main():
         model.enable_input_require_grads()
 
     if lora_cfg.get("r", 0) > 0:
-        lora_config = LoraConfig(
-            r=lora_cfg["r"],
-            lora_alpha=lora_cfg["alpha"],
-            lora_dropout=lora_cfg.get("dropout", 0.0),
-            target_modules=lora_cfg["target_modules"],
-            bias="none",
-            task_type="CAUSAL_LM",
-        )
-        model = get_peft_model(model, lora_config)
-        model.print_trainable_parameters()
+        adapter_init = model_cfg.get("adapter_init")
+        if adapter_init:
+            # Continue training from an existing LoRA (e.g. v4 → v5 in offline RL)
+            from peft import PeftModel
+            print(f"continuing from existing LoRA adapter: {adapter_init}")
+            model = PeftModel.from_pretrained(model, adapter_init, is_trainable=True)
+            model.print_trainable_parameters()
+        else:
+            lora_config = LoraConfig(
+                r=lora_cfg["r"],
+                lora_alpha=lora_cfg["alpha"],
+                lora_dropout=lora_cfg.get("dropout", 0.0),
+                target_modules=lora_cfg["target_modules"],
+                bias="none",
+                task_type="CAUSAL_LM",
+            )
+            model = get_peft_model(model, lora_config)
+            model.print_trainable_parameters()
     else:
         n_trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
         print(f"FFT mode (lora.r=0): all {n_trainable/1e6:.1f}M params trainable")
