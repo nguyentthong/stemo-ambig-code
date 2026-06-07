@@ -147,11 +147,10 @@ def main():
         save_steps=cfg["training"]["save_steps"],
         save_total_limit=cfg["training"]["save_total_limit"],
         bf16=cfg["training"]["bf16"],
-        # gradient_checkpointing=False — both reentrant AND non-reentrant modes hit
-        # CheckpointError on Qwen3.5 + bf16 + Zero-3 (recomputed values have different
-        # metadata, suggests numerical drift in attention kernel). Memory budget instead
-        # relies on minimal rollouts (n=2 × 1024 tokens) + 8-way Zero-3 sharding.
-        gradient_checkpointing=False,
+        gradient_checkpointing=cfg["training"].get("gradient_checkpointing", False),
+        # Write tensorboard event files for live training inspection
+        report_to=["tensorboard"],
+        logging_dir=str(Path(cfg["training"]["output_dir"]) / "runs"),
         num_generations=cfg["rl"]["n_rollouts"],
         temperature=cfg["rl"]["temperature"],
         max_completion_length=cfg["rl"]["max_new_tokens"],
