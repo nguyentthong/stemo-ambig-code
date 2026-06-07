@@ -26,7 +26,8 @@ MODEL_PIPELINES = [
     ("qwen3vl32b",  "Qwen3-VL-32B",    ["base", "qwen3vl32b_base"],
         {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "v5"}),
     ("qwen36_9b",   "Qwen3.6-9B",      ["qwen36_9b_base"],
-        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft"}),  # v5 out-of-scope
+        # v5 added to scope (training is live as of 2026-06-06)
+        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft", "v5"}),
     ("internvl8b",  "InternVL3.5-8B",  ["internvl8b_base"],
         {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft"}),  # v5 out-of-scope
     ("internvl38b", "InternVL3.5-38B", ["internvl38b_base"],
