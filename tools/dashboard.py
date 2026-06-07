@@ -466,7 +466,10 @@ def build_dashboard() -> str:
                 running_now.add(("pipeline", tag, f"v4_eval_base_{bench}"))
             if lora_run:
                 running_now.add(("pipeline", tag, f"v4_eval_lora_{bench}"))
-        if "train_rl_grpo" in proc_blob and tag in proc_blob:
+        # Match v5 RL precisely: look for tag's RL config path, not just substring.
+        # tag="qwen35" was falsely matching qwen35_9b's config (rl_grpo_qwen35_9b.yaml).
+        rl_cfg_re = rf"rl_grpo_{tag}\.yaml"
+        if "train_rl_grpo" in proc_blob and re.search(rl_cfg_re, proc_blob):
             running_now.add(("pipeline", tag, "v5"))
     # Ablations
     if "maximal_prompting_ablation" in proc_blob or "qwen3vl32b_maxprompt" in proc_blob:
@@ -901,6 +904,52 @@ def build_dashboard() -> str:
             status = "🟢 running" if _ablation_running(tag) else "— pending"
             lines.append(f"| {label} | — | — | — | {status} |")
     lines.append("")
+
+    # v5 RL training progress — read the latest trainer_state.json from any v5 run
+    v5_checkpoints = []
+    for tag_dir in (REPO / "checkpoints").glob("*_stemo_ambig_lora_v5*"):
+        for ck in tag_dir.glob("checkpoint-*"):
+            ts_file = ck / "trainer_state.json"
+            if ts_file.exists():
+                v5_checkpoints.append((tag_dir.name, ck.name, ts_file))
+    if v5_checkpoints:
+        lines.append("## v5 RL training progress (last 10 log steps)")
+        lines.append("")
+        lines.append("_Reward/loss/KL trajectory from the most recent TRL trainer_state.json. Reward > v4 strict-K (~0.054 for qwen35_v4) means RL is improving over the SFT init._")
+        lines.append("")
+        # group by tag, take latest checkpoint per tag
+        latest = {}
+        for tag_name, ck_name, ts_file in v5_checkpoints:
+            step = int(ck_name.split("-")[1])
+            if tag_name not in latest or step > latest[tag_name][0]:
+                latest[tag_name] = (step, ts_file)
+        for tag_name, (step, ts_file) in sorted(latest.items()):
+            try:
+                state = json.loads(ts_file.read_text())
+                log = state.get("log_history", [])
+                if not log:
+                    continue
+                lines.append(f"### `{tag_name}` (checkpoint-{step})")
+                lines.append("")
+                lines.append("| step | loss | reward | reward_std | KL | comp_len | entropy |")
+                lines.append("|---|---|---|---|---|---|---|")
+                for e in log[-10:]:
+                    s = e.get("step", "?")
+                    loss = e.get("loss", e.get("train_loss"))
+                    rew = e.get("reward")
+                    rstd = e.get("reward_std")
+                    kl = e.get("kl")
+                    cl = e.get("completions/mean_length")
+                    ent = e.get("entropy")
+                    def fmt(v, prec=4):
+                        if v is None: return "—"
+                        try: return f"{float(v):.{prec}f}"
+                        except: return str(v)
+                    lines.append(f"| {s} | {fmt(loss)} | **{fmt(rew)}** | {fmt(rstd)} | {fmt(kl,5)} | {fmt(cl,0)} | {fmt(ent,3)} |")
+                lines.append("")
+            except Exception as e:
+                lines.append(f"_({tag_name}: trainer_state read error: {repr(e)[:80]})_")
+                lines.append("")
 
     # Recent signals from key logs — only show logs modified in last 6h
     lines.append("## Recent log signals (last 6h)")
