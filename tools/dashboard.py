@@ -468,8 +468,12 @@ def build_dashboard() -> str:
                 running_now.add(("pipeline", tag, f"v4_eval_lora_{bench}"))
         # Match v5 RL precisely: look for tag's RL config path, not just substring.
         # tag="qwen35" was falsely matching qwen35_9b's config (rl_grpo_qwen35_9b.yaml).
-        rl_cfg_re = rf"rl_grpo_{tag}\.yaml"
-        if "train_rl_grpo" in proc_blob and re.search(rl_cfg_re, proc_blob):
+        # Some tags use different physical model slugs (qwen36_9b → Qwen3.5-9B because
+        # Qwen3.6 has no 9B variant), so accept known aliases.
+        rl_config_aliases = {"qwen36_9b": ["qwen36_9b", "qwen35_9b"]}
+        candidate_slugs = rl_config_aliases.get(tag, [tag])
+        rl_patterns = [rf"rl_grpo_{re.escape(s)}\.yaml" for s in candidate_slugs]
+        if "train_rl_grpo" in proc_blob and any(re.search(p, proc_blob) for p in rl_patterns):
             running_now.add(("pipeline", tag, "v5"))
     # Ablations
     if "maximal_prompting_ablation" in proc_blob or "qwen3vl32b_maxprompt" in proc_blob:
