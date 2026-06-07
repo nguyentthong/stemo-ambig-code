@@ -711,16 +711,43 @@ def build_dashboard() -> str:
         vm_acc = _bench_cell(tag, "shards_videomme", "VideoMME", "videomme_metrics.json")
         mvb_acc = _bench_cell(tag, "shards_mvbench", "MVBench", "mvbench_metrics.json")
 
-        # v5 — mark 🚫 if out of scope
+        # v5 — mark 🚫 if out of scope. v5 may be reached via two paths:
+        #  - "online" GRPO (current 9B): adapter at checkpoints/{tag}_stemo_ambig_lora_v5/
+        #  - "offline" STaR-style (current 27B): adapter at .../lora_v5_offline/
+        # The cell shows the most-advanced state reachable from either path.
         if "v5" not in scope:
             v5_str = "🚫"
         else:
-            v5_metrics = get_metrics(f"{tag}_v5")
-            v5_adapter = adapter_done(tag, "v5")
+            v5_metrics = get_metrics(f"{tag}_v5") or get_metrics(f"{tag}_v5_offline")
+            v5_adapter_online = (REPO / f"checkpoints/{tag}_stemo_ambig_lora_v5" /
+                                 "adapter_model.safetensors").exists()
+            v5_adapter_offline = (REPO / f"checkpoints/{tag}_stemo_ambig_lora_v5_offline" /
+                                  "adapter_model.safetensors").exists()
+            # qwen36_9b alias: physical adapter lives under qwen35_9b
+            if tag == "qwen36_9b":
+                v5_adapter_online = v5_adapter_online or (
+                    REPO / "checkpoints/qwen35_9b_stemo_ambig_lora_v5" /
+                    "adapter_model.safetensors").exists()
+            v5_adapter = v5_adapter_online or v5_adapter_offline
+            # Offline chain stage tracking for in-flight 27B runs
+            chain_dir = REPO / f"data_v0/stemo_ambig_v5_offline_{tag}"
+            stage = None
+            if chain_dir.exists() and not v5_adapter_offline:
+                if (chain_dir / "star_kept_v5.jsonl").exists():
+                    stage = "🟢 SFT"
+                elif (chain_dir / "judged_rollouts.jsonl").exists():
+                    stage = "🟢 select"
+                elif (chain_dir / "rollouts.jsonl").exists():
+                    stage = "🟢 judge"
+                elif (chain_dir / "rollout_shards").exists():
+                    tot = sum(sum(1 for _ in open(p)) for p in (chain_dir / "rollout_shards").glob("preds_*.jsonl"))
+                    stage = f"🟢 sample {tot}/1056"
             if v5_metrics:
                 v5_str = f"{v5_metrics['strict_ambig_aware_accuracy']:.3f}"
             elif v5_adapter:
                 v5_str = "✅train"
+            elif stage:
+                v5_str = stage
             elif ("pipeline", tag, "v5") in running_now:
                 v5_str = "🟢"
             else:
@@ -958,62 +985,8 @@ def build_dashboard() -> str:
                 lines.append(f"_({tag_name}: trainer_state read error: {repr(e)[:80]})_")
                 lines.append("")
 
-    # v5 offline RL chain progress (sample → judge → top-k → SFT)
-    for tag in ("qwen35", "qwen36", "qwen3vl32b"):
-        chain_dir = REPO / f"data_v0/stemo_ambig_v5_offline_{tag}"
-        if not chain_dir.exists():
-            continue
-        # Stage 1: rollouts (sampling on 8 GPUs)
-        rollout_shards = chain_dir / "rollout_shards"
-        rollouts_merged = chain_dir / "rollouts.jsonl"
-        # Stage 2: judged rollouts (Gemini-scored)
-        judged = chain_dir / "judged_rollouts.jsonl"
-        # Stage 3: top-K selected
-        kept = chain_dir / "star_kept_v5.jsonl"
-        # Stage 4: v5 adapter
-        v5_adapter = REPO / f"checkpoints/{tag}_stemo_ambig_lora_v5_offline/adapter_model.safetensors"
-        # Compute progress per stage
-        stage_lines = []
-        # Sample
-        if rollouts_merged.exists():
-            n = sum(1 for _ in open(rollouts_merged))
-            stage_lines.append(("1. Sample (8 rollouts/item, 8 GPUs)", f"✅ {n} prediction rows"))
-        elif rollout_shards.exists():
-            tot = 0
-            for p in rollout_shards.glob("preds_*.jsonl"):
-                try: tot += sum(1 for _ in open(p))
-                except: pass
-            mark = "🟢" if tot > 0 else "⏳"
-            stage_lines.append(("1. Sample (8 rollouts/item, 8 GPUs)", f"{mark} {tot} preds across shards (target ~1056)"))
-        else:
-            stage_lines.append(("1. Sample (8 rollouts/item, 8 GPUs)", "— not started"))
-        # Judge
-        if judged.exists():
-            n = sum(1 for _ in open(judged))
-            stage_lines.append(("2. Gemini judge (no GPU)", f"✅ {n} judged rollouts"))
-        else:
-            stage_lines.append(("2. Gemini judge (no GPU)", "— pending"))
-        # Top-K
-        if kept.exists():
-            n = sum(1 for _ in open(kept))
-            stage_lines.append(("3. Top-K selection", f"✅ {n} rollouts kept"))
-        else:
-            stage_lines.append(("3. Top-K selection", "— pending"))
-        # SFT
-        if v5_adapter.exists():
-            stage_lines.append(("4. SFT v4 → v5 (6 GPUs)", f"✅ adapter saved"))
-        else:
-            sft_log = REPO / f"tmp/v5_27b_offline.log"
-            stage_lines.append(("4. SFT v4 → v5 (6 GPUs)", "— pending"))
-        lines.append(f"## v5 offline RL chain ({tag})")
-        lines.append("")
-        lines.append("_Stages run sequentially. Sample (8 GPUs gen-only) → Gemini judge → top-2 select → SFT continuation from v4 LoRA. Decouples gen+train memory so 27B fits._")
-        lines.append("")
-        lines.append("| Stage | Status |")
-        lines.append("|---|---|")
-        for s, v in stage_lines:
-            lines.append(f"| {s} | {v} |")
-        lines.append("")
+    # (v5 offline chain stages are now folded into the v5 column of the Detailed
+    # phase status table above.)
 
     # Recent signals from key logs — only show logs modified in last 6h
     lines.append("## Recent log signals (last 6h)")
