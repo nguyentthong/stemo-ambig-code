@@ -31,7 +31,9 @@ MODEL_PIPELINES = [
     ("internvl8b",  "InternVL3.5-8B",  ["internvl8b_base"],
         {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft"}),  # v5 out-of-scope
     ("internvl38b", "InternVL3.5-38B", ["internvl38b_base"],
-        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "v5"}),   # fft out-of-scope
+        # v5 also dropped — InternVL family has compat blocker (all_tied_weights_keys);
+        # paper's RL section covered by Qwen-family runs.
+        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
 ]
 V3_TAGS = {  # legacy v3 tag map
     "qwen35": ["qwen35_v3"],
