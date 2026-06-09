@@ -741,7 +741,11 @@ def build_dashboard() -> str:
                     stage = "🟢 judge"
                 elif (chain_dir / "rollout_shards").exists():
                     tot = sum(sum(1 for _ in open(p)) for p in (chain_dir / "rollout_shards").glob("preds_*.jsonl"))
-                    stage = f"🟢 sample {tot}/1056"
+                    # The chain samples from star_input.jsonl which is the SFT training
+                    # pool (~2179 items), not the 1056-item benchmark.
+                    star_input = REPO / f"data_v0/stemo_ambig_sft_{tag}_v4/star_input.jsonl"
+                    target = sum(1 for _ in open(star_input)) if star_input.exists() else 2179
+                    stage = f"🟢 sample {tot}/{target} ({tot*100//max(target,1)}%)"
             if v5_metrics:
                 v5_str = f"{v5_metrics['strict_ambig_aware_accuracy']:.3f}"
             elif v5_adapter:
