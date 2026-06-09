@@ -83,13 +83,15 @@ print(f"split {len(lines)} into {n} shards")
 PY
   PIDS=()
   for i in 0 1 2 3 4 5 6 7; do
+    # max-new-tokens 2048 (was 4096) + num-samples 4 (was 8): 4x faster sampling.
+    # Same effective token budget; top-K=2 selector still gets pick-from-4 diversity.
     CUDA_VISIBLE_DEVICES=$i python $REPO/trace-pilot/src/eval/run_qwen_video.py \
       --model-id "$MID" \
       --adapter "$V4_ADAPTER" \
       --input "$SD/shard_$i.jsonl" --output "$SD/preds_$i.jsonl" \
       --system-prompt "$SYS" \
-      --max-new-tokens 4096 \
-      --temperature 0.8 --num-samples 8 \
+      --max-new-tokens 2048 \
+      --temperature 0.8 --num-samples 4 \
       > "$SD/log_$i.txt" 2>&1 &
     PIDS+=($!)
   done
