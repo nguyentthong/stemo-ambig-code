@@ -285,7 +285,21 @@ Both findings—v3's format mimicry and v4's modest, honest gains—are sharper 
 
 ### 5.5 RL exploration with judge-based rewards
 
-We also explore whether reinforcement learning with a Gemini-judge-derived reward can move strict-K beyond the SFT ceiling. Our setup follows GRPO with the trained v4 LoRA adapter as the reference policy. The reward at sample-time is the n\_correct / K count returned by the same LLM judge used for evaluation, with a small length penalty and an explicit anti-mimicry term that penalizes enumerated responses on a held-out unambiguous control set. Full numbers are reported in §5 of the appendix; the headline is that the RL recipe yields a further small improvement on strict-K (within 1–2 points absolute on Qwen3.5-27B) and slightly raises the conditional success ratio, but does not change the entity-versus-event gap or the K-degradation pattern. The RL recipe also exhibits a recurring failure mode where the model learns to enumerate aggressively on the entity subset (where the reward signal is more often nonzero) while collapsing back toward single-commitment on the event subset. We treat this as additional evidence that the underlying difficulty is grounding rather than calibration.
+We explore whether reinforcement learning with a Gemini-judge-derived reward can move performance beyond the v4 SFT ceiling. The reward is `n_correct/K` from the same judge used for evaluation, plus a light length penalty and an anti-mimicry term that penalizes enumeration on a held-out unambiguous control set. We run two RL recipes calibrated to model scale.
+
+**Online GRPO at 9B.** For Qwen3.5-9B (the largest scale at which TRL's GRPOTrainer fits our 8×80GB budget with co-located generation and training), we train 1{,}002 GRPO steps from a fresh LoRA initialization (4 rollouts per item, temperature 0.8, KL weight 0). The training reward plateaus near 0.05 with no sustained upward trend, and the resulting policy scores IAA = 0.011 — far below the 27B v4 SFT model (0.054) and essentially at the GPT-4o floor. Online RL from a base policy that lacks the enumeration prior fails to bootstrap it.
+
+**Offline STaR-style iteration at 27B.** For the three 27/32B models, co-located generation+training exceeds per-GPU memory, so we adopt STaR-style policy iteration (Zelikman et al., 2022; cf. ReST, Gulcehre et al., 2023): sample 4 rollouts per training item from the v4 policy at temperature 0.8, score each with the judge reward, retain the top-2 rollouts per item with reward ≥ 0.5 (~19–27% of rollouts pass), and continue SFT from the v4 adapter for one epoch on the filtered set. This decouples generation memory from training memory and completes in ~10 hours per model on 8×80GB.
+
+Results across the three models (95% CI ≈ ±0.013 at these accuracies, n = 1056):
+
+| Model | v4 IAA | v5 IAA | Δ |
+|---|---|---|---|
+| Qwen3.5-27B | 0.054 | 0.062 | +0.008 |
+| Qwen3.6-27B | 0.044 | 0.048 | +0.004 |
+| Qwen3-VL-32B | 0.034 | 0.022 | −0.012 |
+
+**Every change is within the 95% confidence interval.** Reward-filtered self-training neither reliably improves nor reliably harms the v4 policy: the K-cliff at K ≥ 7 is unchanged (strict-K = 0.000 for all three v5 models), the entity-versus-event gap persists, and the best per-K gain (K = 2: 0.100 → 0.118 on Qwen3.5-27B) is marginal. Combined with the 9B online-GRPO null result, we conclude that **judge-rewarded RL — in either online or offline form — does not break the multi-referent grounding bottleneck that v4 SFT leaves in place.** The reward signal is too sparse precisely where the capability gap is largest: at high K, almost no rollout clears the reward threshold, so the policy receives no gradient toward the behavior it most lacks.
 
 ### 5.6 Prompt-only baselines
 
