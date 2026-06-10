@@ -221,6 +221,13 @@ def silent_failures() -> list[dict]:
         return []
     completed_phases = set()
     started_phases: dict[str, float] = {}  # phase -> start timestamp (epoch s)
+    # If the whole queue has finished, no phase can still be "running", so timing
+    # alarms must not fire. (The per-phase 'done' lines say e.g. "[master] phase D
+    # done" without the descriptive phase name, so name-matching alone misses them.)
+    # NOTE: this only suppresses timing alarms — it does NOT mark phases complete
+    # for the missing-output check, because work superseded into other queues
+    # (completion queue, offline chains) is scheduled, not silently failed.
+    queue_finished = any("FULLY ALL DONE" in l for l in lines)
     # FIRST PASS: identify all completed phases.
     for l in lines:
         if "done" not in l.lower():
@@ -264,6 +271,8 @@ def silent_failures() -> list[dict]:
         "v5 RL remaining": 120,
     }
     now = time.time()
+    if queue_finished:
+        started_phases.clear()  # queue exited — nothing is still running
     for phase_key, started in started_phases.items():
         budget_h = PHASE_BUDGET_H.get(phase_key, 12)
         elapsed_h = (now - started) / 3600
@@ -494,6 +503,15 @@ def build_dashboard() -> str:
         rl_patterns = [rf"rl_grpo_{re.escape(s)}\.yaml" for s in candidate_slugs]
         if "train_rl_grpo" in proc_blob and any(re.search(p, proc_blob) for p in rl_patterns):
             running_now.add(("pipeline", tag, "v5"))
+        # Base eval (sharded run_stemo_ambig_eval / run_qwen_video into eval_runs/{tag}_base/)
+        if f"eval_runs/{tag}_base/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+            running_now.add(("pipeline", tag, "base_eval"))
+        # v3 SFT training for this tag
+        if f"sft_lora_{tag}_v3" in proc_blob and ("accelerate" in proc_blob or "train_sft" in proc_blob):
+            running_now.add(("pipeline", tag, "v3_train"))
+        # v3 eval
+        if f"eval_runs/{tag}_v3/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+            running_now.add(("pipeline", tag, "v3_eval"))
     # Ablations
     if "maximal_prompting_ablation" in proc_blob or "qwen3vl32b_maxprompt" in proc_blob:
         running_now.add(("ablation", "qwen3vl32b_maxprompt"))
@@ -566,6 +584,9 @@ def build_dashboard() -> str:
                     "train": "v4 LoRA training",
                     "v4_eval": "v4 STEMO-Ambig eval",
                     "v5": "v5 GRPO RL training",
+                    "base_eval": "base STEMO-Ambig eval",
+                    "v3_train": "v3 SFT training",
+                    "v3_eval": "v3 STEMO-Ambig eval",
                 }
                 if phase.startswith("v4_eval_base_"):
                     phase_label = f"v4 BASE eval — {phase.split('_')[-1]}"
