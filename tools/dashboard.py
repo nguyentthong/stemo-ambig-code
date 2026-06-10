@@ -667,13 +667,27 @@ def build_dashboard() -> str:
     lines.append("| Model | base strict | v3 strict | v4 sample | v4 filter | v4 adapter | v4 strict | v4 VideoMME | v4 MVBench | v4 FFT strict | v5 RL strict |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
     for tag, label, base_tags, scope in MODEL_PIPELINES:
-        # Base
+        # Base — show 🟢 with live shard count while the base eval is running
         bm, btag = find_metrics_any(base_tags + [f"{tag}_v4_base"])
-        base_str = f"{bm['strict_ambig_aware_accuracy']:.3f}" if bm else "—"
+        if bm:
+            base_str = f"{bm['strict_ambig_aware_accuracy']:.3f}"
+        elif ("pipeline", tag, "base_eval") in running_now:
+            shard_dir = REPO / f"eval_runs/{tag}_base/shards"
+            done = sum(sum(1 for _ in open(p)) for p in shard_dir.glob("preds_*.jsonl")) if shard_dir.exists() else 0
+            base_str = f"🟢 {done}/1056"
+        else:
+            base_str = "—"
 
-        # v3
+        # v3 — show training/eval activity while in flight
         vm, vtag = find_metrics_any(V3_TAGS.get(tag, []))
-        v3_str = f"{vm['strict_ambig_aware_accuracy']:.3f}" if vm else "—"
+        if vm:
+            v3_str = f"{vm['strict_ambig_aware_accuracy']:.3f}"
+        elif ("pipeline", tag, "v3_train") in running_now:
+            v3_str = "🟢 train"
+        elif ("pipeline", tag, "v3_eval") in running_now:
+            v3_str = "🟢 eval"
+        else:
+            v3_str = "—"
 
         # v4 sampling
         s = sampling_state(tag)
