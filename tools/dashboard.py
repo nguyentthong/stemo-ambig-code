@@ -28,12 +28,12 @@ MODEL_PIPELINES = [
     ("qwen36_9b",   "Qwen3.6-9B",      ["qwen36_9b_base"],
         # v5 added to scope (training is live as of 2026-06-06)
         {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft", "v5"}),
-    ("internvl8b",  "InternVL3.5-8B",  ["internvl8b_base"],
-        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft"}),  # v5 out-of-scope
-    ("internvl38b", "InternVL3.5-38B", ["internvl38b_base"],
-        # v5 also dropped — InternVL family has compat blocker (all_tied_weights_keys);
-        # paper's RL section covered by Qwen-family runs.
-        {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
+    # InternVL3.5-8B/38B fully out of scope: custom modeling code is incompatible
+    # with transformers >= 4.49 (all_tied_weights_keys AttributeError). Paper's
+    # open-weight coverage is the Qwen family; cross-family contrast comes from
+    # the three closed APIs. Rows kept for visibility with empty scope.
+    ("internvl8b",  "InternVL3.5-8B",  ["internvl8b_base"], set()),
+    ("internvl38b", "InternVL3.5-38B", ["internvl38b_base"], set()),
 ]
 V3_TAGS = {  # legacy v3 tag map
     "qwen35": ["qwen35_v3"],
@@ -64,7 +64,7 @@ ABLATIONS = [
     ("qwen36_prompt_fewshot", "Prompt-sensitivity (qwen36 fewshot)"),
     ("qwen36_prompt_explicit","Prompt-sensitivity (qwen36 explicit)"),
     ("qwen36_9b_fft_v4",      "FFT (qwen36_9b)"),
-    ("internvl8b_fft_v4",     "FFT (internvl8b)"),
+    # internvl8b_fft_v4 dropped — InternVL out of scope (transformers compat blocker)
 ]
 
 
@@ -372,13 +372,29 @@ def build_dashboard() -> str:
     lines.append("")
 
     # Overall progress count
-    n_base = sum(1 for tag, _, btags, _scope in MODEL_PIPELINES
-                 if find_metrics_any(btags + [f"{tag}_v4_base"])[0])
-    n_v3 = sum(1 for tag, _, _bt, _scope in MODEL_PIPELINES
-               if find_metrics_any(V3_TAGS.get(tag, []))[0])
-    n_v4 = sum(1 for tag, _, _bt, _scope in MODEL_PIPELINES if get_metrics(f"{tag}_v4"))
+    # Denominators are scope-aware: a model only counts toward a category if that
+    # phase is in its scope set (InternVL rows have empty scope → excluded everywhere).
+    n_base_targets = sum(1 for _t, _l, _bt, sc in MODEL_PIPELINES if "base" in sc)
+    n_base = sum(1 for tag, _, btags, sc in MODEL_PIPELINES
+                 if "base" in sc and find_metrics_any(btags + [f"{tag}_v4_base"])[0])
+    n_v3_targets = sum(1 for _t, _l, _bt, sc in MODEL_PIPELINES if "v3" in sc)
+    n_v3 = sum(1 for tag, _, _bt, sc in MODEL_PIPELINES
+               if "v3" in sc and find_metrics_any(V3_TAGS.get(tag, []))[0])
+    n_v4_targets = sum(1 for _t, _l, _bt, sc in MODEL_PIPELINES if "v4_strict" in sc)
+    n_v4 = sum(1 for tag, _, _bt, sc in MODEL_PIPELINES
+               if "v4_strict" in sc and get_metrics(f"{tag}_v4"))
     n_v5_targets = sum(1 for _t, _l, _bt, sc in MODEL_PIPELINES if "v5" in sc)
-    n_v5 = sum(1 for tag, _, _bt, _scope in MODEL_PIPELINES if get_metrics(f"{tag}_v5"))
+
+    def _v5_done(tag):
+        # v5 metrics may live under several conventions (online vs offline, 9B alias)
+        if get_metrics(f"{tag}_v5") or get_metrics(f"{tag}_v5_offline"):
+            return True
+        candidates = [f"eval_runs/{tag}_iaa_v5_offline/iaa_metrics.json"]
+        if tag == "qwen36_9b":
+            candidates.append("eval_runs/qwen35_9b_iaa_v5/iaa_metrics.json")
+        return any((REPO / c).exists() for c in candidates)
+
+    n_v5 = sum(1 for tag, _, _bt, sc in MODEL_PIPELINES if "v5" in sc and _v5_done(tag))
     n_fft_targets = sum(1 for _t, _l, _bt, sc in MODEL_PIPELINES if "fft" in sc)
     n_fft = sum(1 for tag, _, _bt, _scope in MODEL_PIPELINES if get_metrics(f"{tag}_fft_v4"))
     n_blackbox = sum(1 for tag, _ in BLACK_BOX if get_metrics(tag))
@@ -393,30 +409,30 @@ def build_dashboard() -> str:
     n_iaa = sum(1 for t in iaa_run_tags if (REPO / f"eval_runs/{t}/iaa_metrics.json").exists())
     n_iaa_targets = len(iaa_run_tags)
 
-    # Total target counts only in-scope cells (v5 only for some models, FFT only for some)
-    total_target = (len(MODEL_PIPELINES)  # base
-                    + len(MODEL_PIPELINES)  # v3
-                    + len(MODEL_PIPELINES)  # v4
-                    + n_v5_targets         # v5 (only some models)
-                    + n_fft_targets        # FFT (only some)
+    # Total target counts only in-scope cells (InternVL rows have empty scope)
+    total_target = (n_base_targets
+                    + n_v3_targets
+                    + n_v4_targets
+                    + n_v5_targets
+                    + n_fft_targets
                     + len(BLACK_BOX)
                     + len(ABLATIONS)
                     + n_iaa_targets)
     completed = n_base + n_v3 + n_v4 + n_v5 + n_fft + n_blackbox + n_ablations + n_iaa
     lines.append("## Overall progress")
     lines.append("")
-    lines.append("_Total experiments we are running for the paper, across all six open-weight models, three closed-source APIs, ten ablation studies, and nine IAA multi-turn evaluations._")
+    lines.append("_Total experiments for the paper: four Qwen open-weight models, three closed-source APIs, ablations, and IAA multi-turn evaluations. InternVL rows are out of scope (transformers compat blocker)._")
     lines.append("")
     lines.append(f"{bar(completed, total_target, width=40)}  ({completed}/{total_target} cells)")
     lines.append("")
     # Per-category bars
     lines.append("| Category | Progress |")
     lines.append("|---|---|")
-    lines.append(f"| Base evals       | {bar(n_base, len(MODEL_PIPELINES), 20)}  {n_base}/{len(MODEL_PIPELINES)} |")
-    lines.append(f"| v3 SFT           | {bar(n_v3, len(MODEL_PIPELINES), 20)}  {n_v3}/{len(MODEL_PIPELINES)} |")
-    lines.append(f"| v4 SFT (LoRA)    | {bar(n_v4, len(MODEL_PIPELINES), 20)}  {n_v4}/{len(MODEL_PIPELINES)} |")
-    lines.append(f"| v4 FFT (full)    | {bar(n_fft, n_fft_targets, 20)}  {n_fft}/{n_fft_targets} _(scoped: 2 small models)_ |")
-    lines.append(f"| v5 RL            | {bar(n_v5, n_v5_targets, 20)}  {n_v5}/{n_v5_targets} _(scoped: 4 mid-large models)_ |")
+    lines.append(f"| Base evals       | {bar(n_base, n_base_targets, 20)}  {n_base}/{n_base_targets} |")
+    lines.append(f"| v3 SFT           | {bar(n_v3, n_v3_targets, 20)}  {n_v3}/{n_v3_targets} |")
+    lines.append(f"| v4 SFT (LoRA)    | {bar(n_v4, n_v4_targets, 20)}  {n_v4}/{n_v4_targets} |")
+    lines.append(f"| v4 FFT (full)    | {bar(n_fft, n_fft_targets, 20)}  {n_fft}/{n_fft_targets} _(scoped: qwen36_9b)_ |")
+    lines.append(f"| v5 RL            | {bar(n_v5, n_v5_targets, 20)}  {n_v5}/{n_v5_targets} _(scoped: 4 Qwen models)_ |")
     lines.append(f"| Black-box (base) | {bar(n_blackbox, len(BLACK_BOX), 20)}  {n_blackbox}/{len(BLACK_BOX)} |")
     lines.append(f"| Ablations        | {bar(n_ablations, len(ABLATIONS), 20)}  {n_ablations}/{len(ABLATIONS)} |")
     lines.append(f"| IAA (headline)   | {bar(n_iaa, n_iaa_targets, 20)}  {n_iaa}/{n_iaa_targets} _(3 closed + 6 open-weight)_ |")
@@ -953,51 +969,8 @@ def build_dashboard() -> str:
             lines.append(f"| {label} | — | — | — | {status} |")
     lines.append("")
 
-    # v5 RL training progress — read the latest trainer_state.json from any v5 run
-    v5_checkpoints = []
-    for tag_dir in (REPO / "checkpoints").glob("*_stemo_ambig_lora_v5*"):
-        for ck in tag_dir.glob("checkpoint-*"):
-            ts_file = ck / "trainer_state.json"
-            if ts_file.exists():
-                v5_checkpoints.append((tag_dir.name, ck.name, ts_file))
-    if v5_checkpoints:
-        lines.append("## v5 RL training progress (last 10 log steps)")
-        lines.append("")
-        lines.append("_Reward/loss/KL trajectory from the most recent TRL trainer_state.json. Reward > v4 strict-K (~0.054 for qwen35_v4) means RL is improving over the SFT init._")
-        lines.append("")
-        # group by tag, take latest checkpoint per tag
-        latest = {}
-        for tag_name, ck_name, ts_file in v5_checkpoints:
-            step = int(ck_name.split("-")[1])
-            if tag_name not in latest or step > latest[tag_name][0]:
-                latest[tag_name] = (step, ts_file)
-        for tag_name, (step, ts_file) in sorted(latest.items()):
-            try:
-                state = json.loads(ts_file.read_text())
-                log = state.get("log_history", [])
-                if not log:
-                    continue
-                lines.append(f"### `{tag_name}` (checkpoint-{step})")
-                lines.append("")
-                lines.append("| step | loss | reward | reward_std | KL | comp_len | entropy |")
-                lines.append("|---|---|---|---|---|---|---|")
-                for e in log[-10:]:
-                    s = e.get("step", "?")
-                    loss = e.get("loss", e.get("train_loss"))
-                    rew = e.get("reward")
-                    rstd = e.get("reward_std")
-                    kl = e.get("kl")
-                    cl = e.get("completions/mean_length")
-                    ent = e.get("entropy")
-                    def fmt(v, prec=4):
-                        if v is None: return "—"
-                        try: return f"{float(v):.{prec}f}"
-                        except: return str(v)
-                    lines.append(f"| {s} | {fmt(loss)} | **{fmt(rew)}** | {fmt(rstd)} | {fmt(kl,5)} | {fmt(cl,0)} | {fmt(ent,3)} |")
-                lines.append("")
-            except Exception as e:
-                lines.append(f"_({tag_name}: trainer_state read error: {repr(e)[:80]})_")
-                lines.append("")
+    # (v5 training-progress section removed per 2026-06-10 request —
+    # training is complete; v5 results live in the phase table.)
 
     # (v5 offline chain stages are now folded into the v5 column of the Detailed
     # phase status table above.)
