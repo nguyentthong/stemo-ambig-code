@@ -1077,17 +1077,22 @@ def build_dashboard() -> str:
                         existing.append(json.loads(l))
             except Exception:
                 pass
+        def _norm_title(t):
+            # Timing-alarm titles embed a growing hours figure; normalize so the
+            # same alarm isn't re-recorded on every 30-min refresh.
+            return re.sub(r"elapsed [\d.]+h > budget [\d.]+h", "elapsed >budget", t)
+
         existing_keys = set()
         for e in existing:
             t = e.get("title", "")
             if t.startswith("Silent failure:"):
-                existing_keys.add(t)
+                existing_keys.add(_norm_title(t))
         new_entries = []
         current_failure_keys = set()
         for f in sf:
             title = f"Silent failure: {f['phase']} → missing {f['missing_output']}"
             current_failure_keys.add(title)
-            if title not in existing_keys:
+            if _norm_title(title) not in existing_keys:
                 new_entries.append({
                     "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "severity": "high",
@@ -1127,8 +1132,13 @@ def build_dashboard() -> str:
             entries = [json.loads(l) for l in bug_log.read_text().splitlines() if l.strip()]
         except Exception:
             entries = []
-        # Most recent first
-        for e in reversed(entries):
+        # Most recent first. Cap display: all open entries + the 15 most recent
+        # resolved ones (full history stays in tools/bug_fixes.jsonl).
+        open_entries = [e for e in entries if not e.get("resolved", True)]
+        resolved_entries = [e for e in entries if e.get("resolved", True)][-15:]
+        shown = sorted(open_entries + resolved_entries, key=lambda e: e.get("ts", ""))
+        n_hidden = len(entries) - len(shown)
+        for e in reversed(shown):
             ts = e.get("ts", "")[:16].replace("T", " ")
             sev = e.get("severity", "?")
             sev_icon = {"high": "🔴", "medium": "🟡", "low": "🔵"}.get(sev, "⚪")
@@ -1137,6 +1147,8 @@ def build_dashboard() -> str:
             res = e.get("resolved", False)
             res_str = "✅ fixed" if res is True else "🔄 in-progress" if res == "in-progress" else "❌ open"
             lines.append(f"| {ts} | {sev_icon} {sev} | {title} | {affected} | {res_str} |")
+        if n_hidden > 0:
+            lines.append(f"| … | | _{n_hidden} older resolved entries in tools/bug_fixes.jsonl_ | | |")
         lines.append("")
         # Latest detail expanded
         if entries:
