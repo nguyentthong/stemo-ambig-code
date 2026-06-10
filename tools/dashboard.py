@@ -718,7 +718,17 @@ def build_dashboard() -> str:
         if "v5" not in scope:
             v5_str = "🚫"
         else:
-            v5_metrics = get_metrics(f"{tag}_v5") or get_metrics(f"{tag}_v5_offline")
+            # Metrics for v5 may be stored under multiple eval-tag conventions
+            v5_iaa_path = REPO / f"eval_runs/{tag}_iaa_v5_offline/iaa_metrics.json"
+            v5_iaa = None
+            if v5_iaa_path.exists():
+                try:
+                    m = json.loads(v5_iaa_path.read_text())
+                    # IAA file uses 'iaa' as primary metric; map to strict_K column for table
+                    v5_iaa = {"strict_ambig_aware_accuracy": m.get("iaa", 0)}
+                except Exception:
+                    pass
+            v5_metrics = v5_iaa or get_metrics(f"{tag}_v5") or get_metrics(f"{tag}_v5_offline")
             v5_adapter_online = (REPO / f"checkpoints/{tag}_stemo_ambig_lora_v5" /
                                  "adapter_model.safetensors").exists()
             v5_adapter_offline = (REPO / f"checkpoints/{tag}_stemo_ambig_lora_v5_offline" /
