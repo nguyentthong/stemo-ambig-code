@@ -465,9 +465,10 @@ def build_dashboard() -> str:
     proc_blob = "\n".join(procs)
     # Per-model phases
     for tag, _, _, _ in MODEL_PIPELINES:
-        if f"chain_v4.sh {tag}" in proc_blob or f"qwen3vl32b_maxprompt" in proc_blob and tag == "qwen3vl32b":
-            if f"chain_v4.sh {tag}" in proc_blob:
-                running_now.add(("pipeline", tag, "chain"))
+        # Exact word-boundary match: "chain_v4.sh qwen36" must not match
+        # "chain_v4.sh qwen36_9b" (substring false positive).
+        if re.search(rf"chain_v4\.sh {re.escape(tag)}(\s|$)", proc_blob):
+            running_now.add(("pipeline", tag, "chain"))
         # Detect sampling: run_qwen_video with this tag in output path
         if f"_sft_{tag}_v4/star_shards" in proc_blob:
             running_now.add(("pipeline", tag, "sample"))
