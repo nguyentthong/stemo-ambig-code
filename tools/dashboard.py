@@ -55,14 +55,14 @@ BLACK_BOX = [
     ("gemini35flash_maximal","Gemini-3.5-Flash (maximal)"),
 ]
 ABLATIONS = [
-    ("qwen3vl32b_maxprompt",  "Maximal-prompting (qwen3vl32b)"),
+    ("qwen3vl32b_maxprompt",  "Maximal-prompting (qwen3vl32b) — dedicated run"),
     ("qwen35_v4_noparap",     "Paraphrase-ablation (qwen35)"),
     ("qwen35_prompt_neutral", "Prompt-sensitivity (qwen35 neutral)"),
     ("qwen35_prompt_fewshot", "Prompt-sensitivity (qwen35 fewshot)"),
-    ("qwen35_prompt_explicit","Prompt-sensitivity (qwen35 explicit)"),
+    ("qwen35_prompt_explicit","Maximal-prompting (qwen35) — 'explicit' prompt"),
     ("qwen36_prompt_neutral", "Prompt-sensitivity (qwen36 neutral)"),
     ("qwen36_prompt_fewshot", "Prompt-sensitivity (qwen36 fewshot)"),
-    ("qwen36_prompt_explicit","Prompt-sensitivity (qwen36 explicit)"),
+    ("qwen36_prompt_explicit","Maximal-prompting (qwen36) — 'explicit' prompt"),
     # qwen36_9b_fft_v4 removed from this list — FFT has its own category in the
     # overall progress; listing it here double-counted one cell.
     # internvl8b_fft_v4 dropped — InternVL out of scope (transformers compat blocker)
@@ -1020,7 +1020,7 @@ def build_dashboard() -> str:
     # Ablations
     lines.append("## Ablations")
     lines.append("")
-    lines.append("_Targeted experiments that each test one specific claim in the paper. Maximal-prompting tests \"models can solve it if you prompt them hard enough\"; paraphrase ablation tests whether question-paraphrase augmentation matters; prompt-sensitivity tests whether numbers change a lot under different system prompts; FFT tests whether full fine-tuning beats LoRA at small scale._")
+    lines.append("_Targeted experiments that each test one specific claim in the paper. Maximal-prompting tests \"models can solve it if you prompt them hard enough\" — the 'explicit' prompt-sensitivity configs ARE the maximal prompt (identify K, enumerate each referent, exhaustive), so all three Qwen models get maximal-prompting coverage. Paraphrase ablation tests whether question-paraphrase augmentation matters; neutral/fewshot prompt-sensitivity tests robustness to prompt wording; FFT tests whether full fine-tuning beats LoRA at small scale._")
     lines.append("")
     lines.append("| Experiment | strict-K | enum | commit | Status |")
     lines.append("|---|---|---|---|---|")
