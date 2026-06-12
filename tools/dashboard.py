@@ -63,7 +63,8 @@ ABLATIONS = [
     ("qwen36_prompt_neutral", "Prompt-sensitivity (qwen36 neutral)"),
     ("qwen36_prompt_fewshot", "Prompt-sensitivity (qwen36 fewshot)"),
     ("qwen36_prompt_explicit","Prompt-sensitivity (qwen36 explicit)"),
-    ("qwen36_9b_fft_v4",      "FFT (qwen36_9b)"),
+    # qwen36_9b_fft_v4 removed from this list — FFT has its own category in the
+    # overall progress; listing it here double-counted one cell.
     # internvl8b_fft_v4 dropped — InternVL out of scope (transformers compat blocker)
 ]
 
@@ -804,6 +805,9 @@ def build_dashboard() -> str:
         else:
             # Metrics for v5 may be stored under multiple eval-tag conventions
             v5_iaa_path = REPO / f"eval_runs/{tag}_iaa_v5_offline/iaa_metrics.json"
+            if tag == "qwen36_9b" and not v5_iaa_path.exists():
+                # 9B online-GRPO eval lives under the physical model slug
+                v5_iaa_path = REPO / "eval_runs/qwen35_9b_iaa_v5/iaa_metrics.json"
             v5_iaa = None
             if v5_iaa_path.exists():
                 try:
