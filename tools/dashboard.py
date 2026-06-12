@@ -1030,7 +1030,9 @@ def build_dashboard() -> str:
         if tag == "qwen35_v4_noparap":
             return ("ablation", "qwen35_v4_noparap") in running_now
         if "_prompt_" in tag:
-            return ("ablation", "prompt_sensitivity") in running_now
+            # Per-config: the prompt-sensitivity configs run sequentially, so only
+            # mark THIS row running if its own eval-tag appears in a process cmdline.
+            return tag in proc_blob
         if "_fft_v4" in tag:
             return ("ablation", "fft") in running_now
         return False
