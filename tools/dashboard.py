@@ -95,6 +95,32 @@ def find_metrics_any(tags: list[str]) -> tuple[dict, str] | tuple[None, None]:
     return None, None
 
 
+def _live_shard_progress(rel_dir: str, total: int = 1056) -> str | None:
+    """If shard preds in REPO/rel_dir were written in the last 30 min, return
+    '🟢 n/total'; if they exist but are stale (>30 min), '⚠️ n/total stalled';
+    else None. Gives every in-flight eval a visible n/total in the tables."""
+    d = REPO / rel_dir
+    if not d.exists():
+        return None
+    preds = list(d.glob("preds_*.jsonl"))
+    if not preds:
+        return None
+    n = 0
+    latest = 0.0
+    for p in preds:
+        try:
+            n += sum(1 for _ in open(p))
+            latest = max(latest, p.stat().st_mtime)
+        except Exception:
+            pass
+    age_min = (time.time() - latest) / 60 if latest else 1e9
+    if age_min < 30:
+        return f"🟢 {n}/{total}"
+    if n < total:
+        return f"⚠️ {n}/{total} stalled"
+    return None  # full + stale = merge/judge in progress; let metrics decide
+
+
 def sampling_state(tag: str) -> dict:
     """Return dict with sampled (unique), total, last_write_min, rate_per_hour."""
     shards = REPO / f"data_v0/stemo_ambig_sft_{tag}_v4/star_shards"
@@ -726,7 +752,10 @@ def build_dashboard() -> str:
 
         # v4 strict + MCQ
         m = get_metrics(f"{tag}_v4")
-        v4_strict = f"{m['strict_ambig_aware_accuracy']:.3f}" if m else "—"
+        if m:
+            v4_strict = f"{m['strict_ambig_aware_accuracy']:.3f}"
+        else:
+            v4_strict = _live_shard_progress(f"eval_runs/{tag}_v4/shards") or "—"
         def _bench_cell(tag, bench_dir, bench_name, metrics_file):
             """Return cell value: metric if file exists; else 🟢 progress if shards actively writing; else —."""
             f = REPO / f"eval_runs/{tag}_v4/{metrics_file}"
@@ -824,7 +853,14 @@ def build_dashboard() -> str:
             fft_str = "🚫"
         else:
             fft_metrics = get_metrics(f"{tag}_fft_v4")
-            fft_str = f"{fft_metrics['strict_ambig_aware_accuracy']:.3f}" if fft_metrics else "—"
+            if fft_metrics:
+                fft_str = f"{fft_metrics['strict_ambig_aware_accuracy']:.3f}"
+            else:
+                # live: training (config running) or eval shards being written
+                fft_str = _live_shard_progress(f"eval_runs/{tag}_fft_v4/shards")
+                if not fft_str and f"sft_fft_{tag}" in proc_blob:
+                    fft_str = "🟢 train"
+                fft_str = fft_str or "—"
 
         lines.append(
             f"| {label} | {base_str} | {v3_str} | {sample_str} | {filt_str} | {train_str} | "
@@ -1001,7 +1037,13 @@ def build_dashboard() -> str:
                 f"{m['single_commit_rate']:.3f} | {status} |"
             )
         else:
-            status = "🟢 running" if _ablation_running(tag) else "— pending"
+            live = _live_shard_progress(f"eval_runs/{tag}/shards")
+            if live:
+                status = live
+            elif _ablation_running(tag):
+                status = "🟢 running"
+            else:
+                status = "— pending"
             lines.append(f"| {label} | — | — | — | {status} |")
     lines.append("")
 
