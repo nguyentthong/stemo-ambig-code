@@ -114,11 +114,14 @@ def _live_shard_progress(rel_dir: str, total: int = 1056) -> str | None:
         except Exception:
             pass
     age_min = (time.time() - latest) / 60 if latest else 1e9
+    if n >= total and age_min < 120:
+        # Inference complete, metrics not yet written → judge/merge stage (CPU/API).
+        return f"🟢 {n}/{total} judging"
     if age_min < 30:
         return f"🟢 {n}/{total}"
     if n < total:
         return f"⚠️ {n}/{total} stalled"
-    return None  # full + stale = merge/judge in progress; let metrics decide
+    return None
 
 
 def sampling_state(tag: str) -> dict:
