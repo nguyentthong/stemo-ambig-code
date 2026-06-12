@@ -1041,7 +1041,12 @@ def build_dashboard() -> str:
             )
         else:
             live = _live_shard_progress(f"eval_runs/{tag}/shards")
-            if live:
+            if live and "stalled" in live and not _ablation_running(tag):
+                # Old partial shards from a killed run that is queued for re-run:
+                # not stalled — the runner resumes from existing preds.
+                n_part = live.split()[1].split("/")[0]
+                status = f"⏸ queued (resumes from {n_part})"
+            elif live:
                 status = live
             elif _ablation_running(tag):
                 status = "🟢 running"
