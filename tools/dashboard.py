@@ -490,7 +490,7 @@ def build_dashboard() -> str:
     try:
         proc = subprocess.run(
             ["pgrep", "-af",
-             "run_qwen_video|run_internvl_video|train_sft|train_rl|judge_stemo|run_mcq|run_stemo|chain_v4|paraphrase_questions|star_filter|maximal_prompting|paraphrase_ablation|prompt_sensitivity|extended_chains|fft_variant|chain_v3|run_iaa_closed|run_iaa_open"],
+             "run_qwen_video|run_internvl_video|run_internvl_hf_video|train_sft|train_rl|judge_stemo|run_mcq|run_stemo|chain_v4|paraphrase_questions|star_filter|maximal_prompting|paraphrase_ablation|prompt_sensitivity|extended_chains|fft_variant|chain_v3|run_iaa_closed|run_iaa_open"],
             capture_output=True, text=True, timeout=4,
         )
         procs = [l for l in proc.stdout.splitlines() if l.strip()]
@@ -517,7 +517,7 @@ def build_dashboard() -> str:
                 and ("accelerate" in proc_blob or "train_sft" in proc_blob)
                 and not adapter_done(tag, "v4")):
             running_now.add(("pipeline", tag, "train"))
-        if f"eval_runs/{tag}_v4" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+        if f"eval_runs/{tag}_v4" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob or "run_internvl_hf_video" in proc_blob):
             # Distinguish base (no adapter) vs LoRA-merged, and which benchmark
             base_run = f"eval_runs/{tag}_v4_base/" in proc_blob
             lora_run = (f"eval_runs/{tag}_v4/" in proc_blob and f"eval_runs/{tag}_v4_base/" not in proc_blob) \
@@ -542,13 +542,13 @@ def build_dashboard() -> str:
         if "train_rl_grpo" in proc_blob and any(re.search(p, proc_blob) for p in rl_patterns):
             running_now.add(("pipeline", tag, "v5"))
         # Base eval (sharded run_stemo_ambig_eval / run_qwen_video into eval_runs/{tag}_base/)
-        if f"eval_runs/{tag}_base/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+        if f"eval_runs/{tag}_base/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob or "run_internvl_hf_video" in proc_blob):
             running_now.add(("pipeline", tag, "base_eval"))
         # v3 SFT training for this tag
         if f"sft_lora_{tag}_v3" in proc_blob and ("accelerate" in proc_blob or "train_sft" in proc_blob):
             running_now.add(("pipeline", tag, "v3_train"))
         # v3 eval
-        if f"eval_runs/{tag}_v3/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob):
+        if f"eval_runs/{tag}_v3/" in proc_blob and ("run_qwen_video" in proc_blob or "run_internvl_video" in proc_blob or "run_internvl_hf_video" in proc_blob):
             running_now.add(("pipeline", tag, "v3_eval"))
     # Ablations
     if "maximal_prompting_ablation" in proc_blob or "qwen3vl32b_maxprompt" in proc_blob:
@@ -582,6 +582,7 @@ def build_dashboard() -> str:
         ("IAA multi-turn (open)", "run_iaa_open"),
         ("Sampling/inference", "run_qwen_video"),
         ("InternVL inference", "run_internvl_video"),
+        ("InternVL-HF inference", "run_internvl_hf_video"),
         ("Judge", "judge_stemo_traces"),
         ("Paraphrase ablation", "paraphrase_ablation"),
         ("Prompt sensitivity", "prompt_sensitivity_ablation"),
@@ -709,12 +710,9 @@ def build_dashboard() -> str:
         bm, btag = find_metrics_any(base_tags + [f"{tag}_v4_base"])
         if bm:
             base_str = f"{bm['strict_ambig_aware_accuracy']:.3f}"
-        elif ("pipeline", tag, "base_eval") in running_now:
-            shard_dir = REPO / f"eval_runs/{tag}_base/shards"
-            done = sum(sum(1 for _ in open(p)) for p in shard_dir.glob("preds_*.jsonl")) if shard_dir.exists() else 0
-            base_str = f"🟢 {done}/1056"
         else:
-            base_str = "—"
+            # Live progress straight from shard files (robust even if proc detection misses)
+            base_str = _live_shard_progress(f"eval_runs/{tag}_base/shards") or "—"
 
         # v3 — show training/eval activity while in flight
         vm, vtag = find_metrics_any(V3_TAGS.get(tag, []))
