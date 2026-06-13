@@ -47,6 +47,7 @@ If the question has multiple valid interpretations because of an ambiguous refer
 echo "Launching $NGPU parallel inference processes..."
 PIDS=()
 case "${RUNNER_FAMILY:-qwen}" in
+  internvl_hf) RUNNER_SCRIPT="$REPO/trace-pilot/src/eval/run_internvl_hf_video.py" ;;
   internvl) RUNNER_SCRIPT="$REPO/trace-pilot/src/eval/run_internvl_video.py" ;;
   *)        RUNNER_SCRIPT="$REPO/trace-pilot/src/eval/run_qwen_video.py" ;;
 esac

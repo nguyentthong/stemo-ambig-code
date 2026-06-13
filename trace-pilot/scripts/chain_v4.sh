@@ -25,7 +25,7 @@ esac
 # the -HF tags + all Qwen tags use the standard AutoModel runner/trainer.
 case "$TAG" in
   internvl8b_hf|internvl38b_hf)
-              RUNNER="$REPO/trace-pilot/src/eval/run_qwen_video.py"
+              RUNNER="$REPO/trace-pilot/src/eval/run_internvl_hf_video.py"
               TRAINER="$REPO/trace-pilot/src/train_sft.py" ;;
   internvl*)  RUNNER="$REPO/trace-pilot/src/eval/run_internvl_video.py"
               TRAINER="$REPO/trace-pilot/src/train_sft_internvl.py" ;;
@@ -33,6 +33,13 @@ case "$TAG" in
               TRAINER="$REPO/trace-pilot/src/train_sft.py" ;;
 esac
 export RUNNER TRAINER
+# Eval runner family for run_stemo_ambig_eval_sharded.sh
+case "$TAG" in
+  internvl8b_hf|internvl38b_hf) EVAL_FAMILY=internvl_hf ;;
+  internvl*)                    EVAL_FAMILY=internvl ;;
+  *)                            EVAL_FAMILY=qwen ;;
+esac
+export EVAL_FAMILY
 
 V2DIR=$REPO/data_v0/stemo_ambig_sft_v2          # reuse rehearsal
 V4DIR=$REPO/data_v0/stemo_ambig_sft_${TAG}_v4
@@ -170,9 +177,9 @@ until [ -f "$ADAPTER/adapter_model.safetensors" ]; do sleep 30; done
 
 # 7) Eval — thinking ON (the point of v4)
 echo "[v4 $TAG] eval base (thinking on)..."
-MODEL_ID="$MID" NGPU=8 bash $REPO/trace-pilot/scripts/run_stemo_ambig_eval_sharded.sh ${TAG}_v4_base ""
+MODEL_ID="$MID" NGPU=8 RUNNER_FAMILY="$EVAL_FAMILY" bash $REPO/trace-pilot/scripts/run_stemo_ambig_eval_sharded.sh ${TAG}_v4_base ""
 echo "[v4 $TAG] eval v4 (thinking on)..."
-MODEL_ID="$MID" NGPU=8 bash $REPO/trace-pilot/scripts/run_stemo_ambig_eval_sharded.sh ${TAG}_v4 "$ADAPTER"
+MODEL_ID="$MID" NGPU=8 RUNNER_FAMILY="$EVAL_FAMILY" bash $REPO/trace-pilot/scripts/run_stemo_ambig_eval_sharded.sh ${TAG}_v4 "$ADAPTER"
 
 for B in videomme mvbench; do
   GB=duration; [ "$B" = mvbench ] && GB=task
