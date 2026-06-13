@@ -28,12 +28,15 @@ MODEL_PIPELINES = [
     ("qwen36_9b",   "Qwen3.6-9B",      ["qwen36_9b_base"],
         # v5 added to scope (training is live as of 2026-06-06)
         {"base", "v3", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "fft", "v5"}),
-    # InternVL3.5-8B/38B fully out of scope: custom modeling code is incompatible
-    # with transformers >= 4.49 (all_tied_weights_keys AttributeError). Paper's
-    # open-weight coverage is the Qwen family; cross-family contrast comes from
-    # the three closed APIs. Rows kept for visibility with empty scope.
-    ("internvl8b",  "InternVL3.5-8B",  ["internvl8b_base"], set()),
-    ("internvl38b", "InternVL3.5-38B", ["internvl38b_base"], set()),
+    # InternVL via native-HF variants (InternVLForConditionalGeneration) — the
+    # custom-code variants are incompatible with transformers 5.x. We run base + v4
+    # (+ VideoMME/MVBench) to add a genuine second open-weight architecture family;
+    # v3/FFT/v5 stay out of scope. Row key uses the _hf tag so cells read the chain
+    # outputs (eval_runs/internvl{8,38}b_hf_v4[_base]/...).
+    ("internvl8b_hf",  "InternVL3.5-8B",  ["internvl8b_hf_v4_base"],
+        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
+    ("internvl38b_hf", "InternVL3.5-38B", ["internvl38b_hf_v4_base"],
+        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
 ]
 V3_TAGS = {  # legacy v3 tag map
     "qwen35": ["qwen35_v3"],
