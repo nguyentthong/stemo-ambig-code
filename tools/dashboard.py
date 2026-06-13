@@ -706,65 +706,80 @@ def build_dashboard() -> str:
     lines.append("| Model | base strict | v3 strict | v4 sample | v4 filter | v4 adapter | v4 strict | v4 VideoMME | v4 MVBench | v4 FFT strict | v5 RL strict |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
     for tag, label, base_tags, scope in MODEL_PIPELINES:
-        # Base — show 🟢 with live shard count while the base eval is running
-        bm, btag = find_metrics_any(base_tags + [f"{tag}_v4_base"])
-        if bm:
-            base_str = f"{bm['strict_ambig_aware_accuracy']:.3f}"
+        # 🚫 for any phase deliberately out of this model's scope, so the table reads
+        # consistently: 🚫 = not planned, — = planned but not started, value = done.
+        oos = "🚫"
+        # Base
+        if "base" not in scope:
+            base_str = oos
         else:
-            # Live progress straight from shard files (robust even if proc detection misses)
-            base_str = _live_shard_progress(f"eval_runs/{tag}_base/shards") or "—"
+            bm, btag = find_metrics_any(base_tags + [f"{tag}_v4_base"])
+            if bm:
+                base_str = f"{bm['strict_ambig_aware_accuracy']:.3f}"
+            else:
+                base_str = _live_shard_progress(f"eval_runs/{tag}_base/shards") or "—"
 
-        # v3 — show training/eval activity while in flight
-        vm, vtag = find_metrics_any(V3_TAGS.get(tag, []))
-        if vm:
-            v3_str = f"{vm['strict_ambig_aware_accuracy']:.3f}"
-        elif ("pipeline", tag, "v3_train") in running_now:
-            v3_str = "🟢 train"
-        elif ("pipeline", tag, "v3_eval") in running_now:
-            v3_str = "🟢 eval"
+        # v3
+        if "v3" not in scope:
+            v3_str = oos
         else:
-            v3_str = "—"
+            vm, vtag = find_metrics_any(V3_TAGS.get(tag, []))
+            if vm:
+                v3_str = f"{vm['strict_ambig_aware_accuracy']:.3f}"
+            elif ("pipeline", tag, "v3_train") in running_now:
+                v3_str = "🟢 train"
+            elif ("pipeline", tag, "v3_eval") in running_now:
+                v3_str = "🟢 eval"
+            else:
+                v3_str = "—"
 
+        v4_in_scope = "v4_strict" in scope
         # v4 sampling
         s = sampling_state(tag)
-        # If downstream phases (filter/train/eval) are done, treat sample as done
-        # even if some shards didn't reach the full 2179 (small leftover items).
         adapter_present = adapter_done(tag, "v4")
         eval_present = bool(get_metrics(f"{tag}_v4"))
         downstream_done = adapter_present or eval_present
         running_sample = ("pipeline", tag, "sample") in running_now
-        if s["done"] == 0 and not running_sample:
+        if not v4_in_scope:
+            sample_str = oos
+        elif s["done"] == 0 and not running_sample:
             sample_str = "—"
         elif s["done"] >= s["total"] or downstream_done:
             sample_str = "✅"
         else:
-            # tqdm-style bar with ETA
             sample_str = bar_with_eta(s["done"], s["total"], s["age_min"], s["rate_per_hour"], width=12)
             if running_sample:
                 sample_str += " 🟢"
 
-        # v4 filter (also treat as ✅ if downstream done with smaller kept count)
+        # v4 filter
         filt_ok, n_kept = filter_state(tag)
-        if n_kept > 0:
+        if not v4_in_scope:
+            filt_str = oos
+        elif n_kept > 0:
             filt_str = f"{n_kept}"
         elif downstream_done:
             filt_str = "✅"
         else:
             filt_str = "—"
 
-        # v4 train
+        # v4 train (adapter)
         running_train = ("pipeline", tag, "train") in running_now
-        train_str = "✅" if adapter_present else ("🟢" if running_train else "—")
-        # v4 filter — also mark 🟢 if filter is actively running
-        if ("pipeline", tag, "filter") in running_now and filt_str == "—":
-            filt_str = "🟢"
+        if not v4_in_scope:
+            train_str = oos
+        else:
+            train_str = "✅" if adapter_present else ("🟢" if running_train else "—")
+            if ("pipeline", tag, "filter") in running_now and filt_str == "—":
+                filt_str = "🟢"
 
         # v4 strict + MCQ
-        m = get_metrics(f"{tag}_v4")
-        if m:
-            v4_strict = f"{m['strict_ambig_aware_accuracy']:.3f}"
+        if not v4_in_scope:
+            v4_strict = oos
         else:
-            v4_strict = _live_shard_progress(f"eval_runs/{tag}_v4/shards") or "—"
+            m = get_metrics(f"{tag}_v4")
+            if m:
+                v4_strict = f"{m['strict_ambig_aware_accuracy']:.3f}"
+            else:
+                v4_strict = _live_shard_progress(f"eval_runs/{tag}_v4/shards") or "—"
         def _bench_cell(tag, bench_dir, bench_name, metrics_file):
             """Return cell value: metric if file exists; else 🟢 progress if shards actively writing; else —."""
             f = REPO / f"eval_runs/{tag}_v4/{metrics_file}"
@@ -798,8 +813,8 @@ def build_dashboard() -> str:
                 return f"🟢 {done_lines}"
             return "—"
 
-        vm_acc = _bench_cell(tag, "shards_videomme", "VideoMME", "videomme_metrics.json")
-        mvb_acc = _bench_cell(tag, "shards_mvbench", "MVBench", "mvbench_metrics.json")
+        vm_acc = _bench_cell(tag, "shards_videomme", "VideoMME", "videomme_metrics.json") if "videomme" in scope else oos
+        mvb_acc = _bench_cell(tag, "shards_mvbench", "MVBench", "mvbench_metrics.json") if "mvbench" in scope else oos
 
         # v5 — mark 🚫 if out of scope. v5 may be reached via two paths:
         #  - "online" GRPO (current 9B): adapter at checkpoints/{tag}_stemo_ambig_lora_v5/
