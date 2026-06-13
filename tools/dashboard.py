@@ -36,10 +36,11 @@ MODEL_PIPELINES = [
     # InternVL parked: the -HF variants load but their vision preprocessing (dynamic
     # 448px tiling) is incompatible with the Qwen runner's frame-stacking — needs a
     # dedicated runner using InternVLProcessor.apply_chat_template (not yet built).
-    ("internvl8b_hf",  "InternVL3.5-8B",  ["internvl8b_hf_v4_base"],
-        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
-    ("internvl38b_hf", "InternVL3.5-38B", ["internvl38b_hf_v4_base"],
-        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench"}),
+    # base only: cross-family base behavior via the verified -HF multi-image runner.
+    # v4-SFT dropped — train_sft.py's collator hits the same broken InternVL video
+    # path, and SFT generalization is already established on 4 Qwen models.
+    ("internvl8b_hf",  "InternVL3.5-8B",  ["internvl8b_hf_base"], {"base"}),
+    ("internvl38b_hf", "InternVL3.5-38B", ["internvl38b_hf_base"], {"base"}),
 ]
 V3_TAGS = {  # legacy v3 tag map
     "qwen35": ["qwen35_v3"],
