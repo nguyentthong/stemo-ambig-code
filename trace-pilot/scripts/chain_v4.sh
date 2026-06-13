@@ -13,11 +13,20 @@ case "$TAG" in
   qwen36_9b)  MID="Qwen/Qwen3.5-9B"       ;;  # Qwen3.6 has no 9B variant; using closest Qwen3.5-9B for smaller-scale comparison
   internvl38b)MID="OpenGVLab/InternVL3_5-38B" ;;
   internvl8b) MID="OpenGVLab/InternVL3_5-8B"  ;;
+  # Native-HF variants: official InternVLForConditionalGeneration class, no
+  # trust_remote_code, so they load through the standard AutoModelForImageTextToText
+  # runner/trainer (the custom modeling code is incompatible with transformers 5.x).
+  internvl8b_hf)  MID="OpenGVLab/InternVL3_5-8B-HF"  ;;
+  internvl38b_hf) MID="OpenGVLab/InternVL3_5-38B-HF" ;;
   *) echo "unknown tag $TAG"; exit 1 ;;
 esac
 
-# Family dispatcher: InternVL uses a different inference runner + train script
+# Family dispatcher: legacy InternVL custom-code tags use the custom runner;
+# the -HF tags + all Qwen tags use the standard AutoModel runner/trainer.
 case "$TAG" in
+  internvl8b_hf|internvl38b_hf)
+              RUNNER="$REPO/trace-pilot/src/eval/run_qwen_video.py"
+              TRAINER="$REPO/trace-pilot/src/train_sft.py" ;;
   internvl*)  RUNNER="$REPO/trace-pilot/src/eval/run_internvl_video.py"
               TRAINER="$REPO/trace-pilot/src/train_sft_internvl.py" ;;
   *)          RUNNER="$REPO/trace-pilot/src/eval/run_qwen_video.py"
