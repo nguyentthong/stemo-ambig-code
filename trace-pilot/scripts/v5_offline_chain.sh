@@ -15,8 +15,11 @@ case "$TAG" in
   qwen35)     MID="Qwen/Qwen3.5-27B" ;;
   qwen36)     MID="Qwen/Qwen3.6-27B" ;;
   qwen3vl32b) MID="Qwen/Qwen3-VL-32B-Thinking" ;;
-  *) echo "unknown tag $TAG (must be qwen35 / qwen36 / qwen3vl32b)"; exit 1 ;;
+  internvl8b_hf)  MID="OpenGVLab/InternVL3_5-8B-HF" ;;
+  internvl38b_hf) MID="OpenGVLab/InternVL3_5-38B-HF" ;;
+  *) echo "unknown tag $TAG (must be qwen35 / qwen36 / qwen3vl32b / internvl*_hf)"; exit 1 ;;
 esac
+case "$TAG" in internvl*_hf) VMAXFRAMES=8 ;; *) VMAXFRAMES=16 ;; esac
 
 V4DIR=$REPO/data_v0/stemo_ambig_sft_${TAG}_v4
 V4_ADAPTER=$REPO/checkpoints/${TAG}_stemo_ambig_lora_v4
@@ -85,7 +88,9 @@ PY
   for i in 0 1 2 3 4 5 6 7; do
     # max-new-tokens 2048 (was 4096) + num-samples 4 (was 8): 4x faster sampling.
     # Same effective token budget; top-K=2 selector still gets pick-from-4 diversity.
-    CUDA_VISIBLE_DEVICES=$i python $REPO/trace-pilot/src/eval/run_qwen_video.py \
+    SAMPLER=$REPO/trace-pilot/src/eval/run_qwen_video.py
+    case "$TAG" in internvl*_hf) SAMPLER=$REPO/trace-pilot/src/eval/run_internvl_hf_video.py ;; esac
+    CUDA_VISIBLE_DEVICES=$i python $SAMPLER \
       --model-id "$MID" \
       --adapter "$V4_ADAPTER" \
       --input "$SD/shard_$i.jsonl" --output "$SD/preds_$i.jsonl" \
@@ -143,7 +148,7 @@ data:
   dev_file:   $V5_DIR/sft_dev.jsonl
   max_seq_len: 4096
   video_fps: 1.0
-  video_max_frames: 16
+  video_max_frames: $VMAXFRAMES
 lora:
   r: 128
   alpha: 128

@@ -40,6 +40,11 @@ case "$TAG" in
   *)                            EVAL_FAMILY=qwen ;;
 esac
 export EVAL_FAMILY
+case "$TAG" in
+  internvl8b_hf|internvl38b_hf) VMAXFRAMES=8 ;;
+  *)                            VMAXFRAMES=16 ;;
+esac
+export VMAXFRAMES
 
 V2DIR=$REPO/data_v0/stemo_ambig_sft_v2          # reuse rehearsal
 V4DIR=$REPO/data_v0/stemo_ambig_sft_${TAG}_v4
@@ -140,7 +145,7 @@ data:
   dev_file:   $V4DIR/sft_dev.jsonl
   max_seq_len: 4096            # CoT preserved → longer targets, bump from 2048
   video_fps: 1.0
-  video_max_frames: 16
+  video_max_frames: $VMAXFRAMES
 lora:
   r: 128
   alpha: 128

@@ -39,8 +39,10 @@ MODEL_PIPELINES = [
     # base only: cross-family base behavior via the verified -HF multi-image runner.
     # v4-SFT dropped — train_sft.py's collator hits the same broken InternVL video
     # path, and SFT generalization is already established on 4 Qwen models.
-    ("internvl8b_hf",  "InternVL3.5-8B",  ["internvl8b_hf_base"], {"base"}),
-    ("internvl38b_hf", "InternVL3.5-38B", ["internvl38b_hf_base"], {"base"}),
+    ("internvl8b_hf",  "InternVL3.5-8B",  ["internvl8b_hf_v4_base", "internvl8b_hf_base"],
+        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "v5"}),
+    ("internvl38b_hf", "InternVL3.5-38B", ["internvl38b_hf_v4_base", "internvl38b_hf_base"],
+        {"base", "v4_sample", "v4_filter", "v4_train", "v4_strict", "videomme", "mvbench", "v5"}),
 ]
 V3_TAGS = {  # legacy v3 tag map
     "qwen35": ["qwen35_v3"],

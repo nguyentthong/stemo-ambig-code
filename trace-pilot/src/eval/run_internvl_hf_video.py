@@ -23,7 +23,7 @@ from PIL import Image
 from transformers import AutoModelForImageTextToText, AutoProcessor
 
 
-def decode_frames_pil(path, num_frames=16):
+def decode_frames_pil(path, num_frames=8):
     """Decode num_frames uniformly with decord (no torchcodec dependency)."""
     vr = decord.VideoReader(str(path))
     total = len(vr)
@@ -51,7 +51,7 @@ def load_model(model_id: str, adapter: str | None, dtype="bfloat16"):
 
 @torch.inference_mode()
 def run_one(model, processor, video_path, prompt, system_prompt,
-            max_new_tokens=512, num_frames=16, temperature=0.0, num_samples=1):
+            max_new_tokens=512, num_frames=8, temperature=0.0, num_samples=1):
     # Decode frames ourselves (decord) and pass them as a pre-loaded video tensor,
     # avoiding the processor's torchcodec path. InternVL handles a frame list as
     # video natively (one set of 448px tiles per frame).
@@ -74,16 +74,19 @@ def run_one(model, processor, video_path, prompt, system_prompt,
     inputs = {k: (v.to(model.device) if hasattr(v, "to") else v) for k, v in inputs.items()}
 
     do_sample = temperature > 0.0 or num_samples > 1
-    gen_kwargs = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
-    if do_sample:
-        gen_kwargs["temperature"] = temperature if temperature > 0 else 0.7
-        gen_kwargs["top_p"] = 0.95
-        gen_kwargs["num_return_sequences"] = num_samples
-
-    out = model.generate(**inputs, **gen_kwargs)
     plen = inputs["input_ids"].shape[1]
-    texts = [processor.decode(out[i][plen:], skip_special_tokens=True).strip()
-             for i in range(out.shape[0])]
+    # Generate samples in a LOOP rather than num_return_sequences>1: with InternVL
+    # multimodal inputs, num_return_sequences does NOT replicate pixel_values across
+    # the returned sequences, so all but the first come back empty/garbage. One
+    # single-sequence generate per sample keeps pixel_values aligned.
+    texts = []
+    for _ in range(max(1, num_samples)):
+        gen_kwargs = dict(max_new_tokens=max_new_tokens, do_sample=do_sample)
+        if do_sample:
+            gen_kwargs["temperature"] = temperature if temperature > 0 else 0.7
+            gen_kwargs["top_p"] = 0.95
+        out = model.generate(**inputs, **gen_kwargs)
+        texts.append(processor.decode(out[0][plen:], skip_special_tokens=True).strip())
     return texts[0] if num_samples == 1 else texts
 
 
