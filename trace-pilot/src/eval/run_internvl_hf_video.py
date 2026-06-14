@@ -40,6 +40,18 @@ def load_model(model_id: str, adapter: str | None, dtype="bfloat16"):
     model = AutoModelForImageTextToText.from_pretrained(
         model_id, torch_dtype=getattr(torch, dtype), device_map="auto",
     )
+    # InternVL3.5-38B-HF ships a malformed `_no_split_modules` (contains a nested
+    # set), which crashes accelerate's get_balanced_memory during PEFT adapter
+    # loading (TypeError: unhashable type: 'set'). Flatten to a clean string list.
+    nsm = getattr(model, "_no_split_modules", None)
+    if nsm:
+        flat = []
+        for x in nsm:
+            if isinstance(x, (set, list, tuple)):
+                flat.extend(x)
+            else:
+                flat.append(x)
+        model._no_split_modules = list(dict.fromkeys(flat))
     if adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, adapter)
