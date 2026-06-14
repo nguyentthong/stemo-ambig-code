@@ -793,7 +793,7 @@ def build_dashboard() -> str:
                     return f"{v:.3f}" if v > 0.001 else "0.000 ⚠️"
                 except Exception:
                     return "—"
-            # Check if BOTH lora and base shards are actively being written
+            # Both base and v4 shards write in parallel; show combined n/total.
             shard_dir = REPO / f"eval_runs/{tag}_v4/{bench_dir}"
             base_shard_dir = REPO / f"eval_runs/{tag}_v4_base/{bench_dir}"
             now = time.time()
@@ -810,11 +810,18 @@ def build_dashboard() -> str:
                             done_lines += sum(1 for _ in fh)
                     except Exception:
                         pass
+                # total = sum of input-shard lines (shard_*.jsonl are the inputs)
+                for p in sd.glob("shard_*.jsonl"):
+                    try:
+                        with open(p) as fh:
+                            total_lines += sum(1 for _ in fh)
+                    except Exception:
+                        pass
             running_eval = any(k[0] == "pipeline" and k[1] == tag and isinstance(k[2], str)
                                and k[2].startswith("v4_eval_") and k[2].endswith(bench_name)
                                for k in running_now)
             if running_eval or recent:
-                return f"🟢 {done_lines}"
+                return f"🟢 {done_lines}/{total_lines}" if total_lines else f"🟢 {done_lines}"
             return "—"
 
         vm_acc = _bench_cell(tag, "shards_videomme", "VideoMME", "videomme_metrics.json") if "videomme" in scope else oos
