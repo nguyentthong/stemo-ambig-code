@@ -188,8 +188,8 @@ MODEL_ID="$MID" NGPU=8 RUNNER_FAMILY="$EVAL_FAMILY" bash $REPO/trace-pilot/scrip
 
 for B in videomme mvbench; do
   GB=duration; [ "$B" = mvbench ] && GB=task
-  MODEL_ID="$MID" GROUP_BY=$GB GPUS=0,1,2,3 bash $REPO/trace-pilot/scripts/run_mcq_eval_sharded.sh $B ${TAG}_v4_base "" &
-  MODEL_ID="$MID" GROUP_BY=$GB GPUS=4,5,6,7 bash $REPO/trace-pilot/scripts/run_mcq_eval_sharded.sh $B ${TAG}_v4 "$ADAPTER" &
+  MODEL_ID="$MID" RUNNER_FAMILY="$EVAL_FAMILY" GROUP_BY=$GB GPUS=0,1,2,3 bash $REPO/trace-pilot/scripts/run_mcq_eval_sharded.sh $B ${TAG}_v4_base "" &
+  MODEL_ID="$MID" RUNNER_FAMILY="$EVAL_FAMILY" GROUP_BY=$GB GPUS=4,5,6,7 bash $REPO/trace-pilot/scripts/run_mcq_eval_sharded.sh $B ${TAG}_v4 "$ADAPTER" &
   wait
 done
 

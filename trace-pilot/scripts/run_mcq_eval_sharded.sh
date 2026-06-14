@@ -49,7 +49,12 @@ echo "[${BENCH}/${TAG}] launching ${NSHARDS} processes across GPUs ${GPUS}"
 PIDS=()
 for ((i=0; i<NSHARDS; i++)); do
   GPU=${GPU_ARR[$i]}
-  CUDA_VISIBLE_DEVICES=$GPU python "$REPO/trace-pilot/src/eval/run_qwen_video.py" \
+  MCQ_RUNNER="$REPO/trace-pilot/src/eval/run_qwen_video.py"
+  case "${RUNNER_FAMILY:-qwen}" in
+    internvl_hf) MCQ_RUNNER="$REPO/trace-pilot/src/eval/run_internvl_hf_video.py" ;;
+    internvl)    MCQ_RUNNER="$REPO/trace-pilot/src/eval/run_internvl_video.py" ;;
+  esac
+  CUDA_VISIBLE_DEVICES=$GPU python "$MCQ_RUNNER" \
     --model-id "${MODEL_ID:-Qwen/Qwen3-VL-32B-Thinking}" \
     $ADAPTER_FLAG $NOTHINK_FLAG \
     --input  "$SHARDS_DIR/shard_$i.jsonl" \
