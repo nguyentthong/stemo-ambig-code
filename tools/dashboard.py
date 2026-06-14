@@ -875,12 +875,16 @@ def build_dashboard() -> str:
                     star_input = REPO / f"data_v0/stemo_ambig_sft_{tag}_v4/star_input.jsonl"
                     target = sum(1 for _ in open(star_input)) if star_input.exists() else 2179
                     stage = f"🟢 sample {tot}/{target} ({tot*100//max(target,1)}%)"
+            # Live v5 strict-K eval (after adapter trained): shards being written.
+            v5_eval_live = _live_shard_progress(f"eval_runs/{tag}_v5_offline/shards")
             if v5_metrics:
                 v5_str = f"{v5_metrics['strict_ambig_aware_accuracy']:.3f}"
-            elif v5_adapter:
-                v5_str = "✅train"
+            elif v5_eval_live:
+                v5_str = v5_eval_live.replace("🟢", "🟢 eval", 1)  # e.g. "🟢 eval 240/1056"
             elif stage:
                 v5_str = stage
+            elif v5_adapter:
+                v5_str = "✅train"
             elif ("pipeline", tag, "v5") in running_now:
                 v5_str = "🟢"
             else:
