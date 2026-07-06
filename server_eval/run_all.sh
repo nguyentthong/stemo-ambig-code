@@ -70,7 +70,14 @@ QUEUE=(
 
 PORT=8199
 LIMIT_ARG=""
-[ -n "$SMOKE" ] && { QUEUE=("internvl8b|OpenGVLab/InternVL3_5-8B-HF|8|1"); LIMIT_ARG="--limit 6"; }
+if [ -n "$SMOKE" ]; then
+  # SMOKE_MODEL=<tag> picks a different queue entry (default: 8B InternVL)
+  SMOKE_TAG="${SMOKE_MODEL:-internvl8b}"
+  PICKED=""
+  for e in "${QUEUE[@]}"; do [[ "$e" == "$SMOKE_TAG|"* ]] && PICKED="$e"; done
+  [ -n "$PICKED" ] || { echo "FATAL: unknown SMOKE_MODEL=$SMOKE_TAG"; exit 1; }
+  QUEUE=("$PICKED"); LIMIT_ARG="--limit 6"
+fi
 
 wait_for_server() {  # $1=pid  $2=log
   local waited=0
@@ -136,6 +143,7 @@ for entry in "${QUEUE[@]}"; do
       --tensor-parallel-size "$TP" --port "$PORT" \
       --limit-mm-per-prompt '{"image": 16}' \
       --max-model-len 32768 --gpu-memory-utilization 0.90 \
+      --enforce-eager --no-enable-prefix-caching \
       --trust-remote-code > "$SERVER_LOG" 2>&1 &
   SERVER_PID=$!
 
