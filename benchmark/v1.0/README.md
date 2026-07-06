@@ -9,7 +9,7 @@ Given a video and a question containing an under-specified noun phrase (e.g., "D
 1. **Recognize** the ambiguity,
 2. **Resolve** it correctly — either by enumerating each valid interpretation with the right per-referent answer, OR by asking a clarifying question and then answering correctly when given a specific referent.
 
-The headline metric is **IAA (Interactive Ambig-Aware Accuracy)**. See `PROTOCOL.md`.
+The headline metric is the **ReQueST score**, the mean per-question credit. See `PROTOCOL.md`. (Scorer output key: `iaa`, kept for backward compatibility.)
 
 ## Contents
 
@@ -34,7 +34,7 @@ A submission consists of one JSONL file with this record schema:
 
 Submitters can choose any inference framework, model family, prompting strategy, frame sampling, or reasoning budget — these will be reported alongside the score.
 
-We will run the canonical scoring (multi-judge ensemble + IAA aggregation) and publish results on the leaderboard.
+We will run the canonical scoring (multi-judge ensemble + ReQueST-score aggregation) and publish results on the leaderboard.
 
 ## Headline metrics
 
@@ -42,12 +42,14 @@ For each submission we report:
 
 | Metric              | Definition                                                              | Headline? |
 |---------------------|-------------------------------------------------------------------------|-----------|
-| **IAA**             | Interactive Ambig-Aware Accuracy (turn-1 enum OR turn-2 resolved)        | **yes**   |
-| strict-K            | Turn-1 enumerates all K referents with correct answers                  | no (diag) |
+| **ReQueST score**   | Mean per-question credit: proportional enumeration credit (correct readings / K) OR turn-2 resolved | **yes**   |
+| strict-K            | Turn-1 enumerates all K referents with correct answers (full credit)    | no (diag) |
 | AAR-loose           | Turn-1 enumerates OR clarifies with scope-anchored question             | no (diag) |
 | clarification rate  | Turn-1 asks a clarifying question                                       | no (diag) |
 | recognition/no-recall | Turn-1 is a vague clarification (acknowledges ambiguity, no referent) | no (diag) |
 | follow-through rate | Conditional on clarification, did the model resolve correctly?          | no (diag) |
+| reading coverage    | Fraction of gold readings the response explicitly addresses (macro mean) | no (diag) |
+| conditional correctness | Yes/no accuracy pooled over the readings responses explicitly address | no (diag) |
 | Per-K breakdown     | Same metrics stratified by K=2, K=3, K=4–6, K=7+                        | reported  |
 | Per-subset          | Entity / Event / TempBias subsets                                       | reported  |
 

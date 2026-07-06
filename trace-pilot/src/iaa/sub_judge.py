@@ -26,19 +26,19 @@ sys.path.insert(0, str(REPO_ROOT))
 JUDGE_MODEL = "gemini-3-flash-preview"
 PROTOCOL_VERSION = "iaa-v1.0"
 
-CLASSIFY_PROMPT = """You are classifying a model's response to a video-QA question for a referential-ambiguity benchmark.
+CLASSIFY_PROMPT = """You are judging a model's response to a video-QA question for a referential-ambiguity benchmark.
 
 Question: {question}
 
-Gold interpretations of the question (each names a distinct referent the question could pick out):
+Gold readings of the question, numbered in canonical order (each names a distinct referent the question could pick out):
 {interp_block}
 
 Model response:
 \"\"\"{response}\"\"\"
 
-Classify the response into EXACTLY ONE of these categories:
+Step 1. Classify the response into EXACTLY ONE of these categories:
 
-- "enumerated": The response explicitly lists ≥2 candidate referents AND provides an answer (Yes/No or equivalent) for each. The referent descriptions should plausibly correspond to the gold interpretations.
+- "enumerated": The response commits to a yes/no answer for two or more of the gold readings, either by addressing readings individually or by a grouped statement that determinately covers them (e.g. "every attempt after the first succeeds").
 
 - "clarified_scope": The response asks the asker to clarify, AND it explicitly names the ambiguous noun/phrase from the question. Examples: "Which boy do you mean?", "Which color?", "Which point in the video?". The named phrase must correspond to the part of the question that admits multiple interpretations (e.g. for "Does the boy fall?" with gold referents about boys, asking "which boy?" qualifies; asking "what kind of fall?" does not).
 
@@ -48,14 +48,26 @@ Classify the response into EXACTLY ONE of these categories:
 
 - "refused": The model declines to answer, produces off-topic content, errors out, or otherwise provides no scorable answer.
 
+Step 2. If and only if the category is "enumerated", decide FOR EACH gold reading, in order, which answer the response determinately assigns it: "yes", "no", "conflict", or "unanswered". Apply these rules strictly:
+
+- Assign "yes" or "no" only when the response's own words entail that answer for that specific reading without extra assumptions. Cite the minimal quote that licenses the assignment.
+- A universal or negative statement assigns its answer to every reading it covers: "every attempt succeeds" assigns yes to each attempt reading.
+- An exception construction assigns the complement to the excepted reading: "all attempts succeed except the second" assigns yes to every attempt reading and no to the second, because the answers are binary.
+- Resolve pointers such as "the first" or "the last two" by the canonical order of the reading list. If a pointer could denote more than one reading and the response gives no way to tell them apart, assign "unanswered" to every candidate.
+- A hedge ("probably", "I think", "might") nullifies only the clause it modifies. Readings covered only by hedged clauses are "unanswered".
+- A bare plural without a universal quantifier ("the attempts succeeded") assigns nothing.
+- A count without identification ("it happens three times") assigns nothing.
+- If the response commits to contradictory answers for the same reading, assign "conflict".
+- Use only the response text and the reading list. Never fill gaps with your own knowledge of the video or with guesses.
+
 Additionally extract:
-- "enumerated_count": int. If category is "enumerated", how many distinct referent-answer pairs the response provides; else 0.
-- "enumerated_matches": list of {{"referent_description": str, "decision": "yes"|"no"|"unknown"}}. If category is "enumerated", one entry per enumerated pair; else [].
 - "ambiguous_phrase": str. If category is clarified_scope, the specific noun/phrase the model named (e.g. "boy", "color"); else "".
 
 Return STRICT JSON only. No prose, no backticks.
 
-{{"category": "...", "enumerated_count": 0, "enumerated_matches": [], "ambiguous_phrase": ""}}
+{{"category": "...", "ambiguous_phrase": "", "reading_assignments": [{{"index": 1, "decision": "yes"|"no"|"conflict"|"unanswered", "quote": ""}}]}}
+
+- "reading_assignments": one entry per gold reading, in canonical order. Use [] unless category is "enumerated".
 """
 
 EXTRACT_PROMPT = """You are extracting a model's yes/no decision for a referentially disambiguated video question.
@@ -80,11 +92,12 @@ Rules:
 
 
 def _render_interps(interps):
+    # descriptions only: the classifier must decide coverage blind to gold
+    # answers, so a vague statement cannot be "helped" toward the right label
     lines = []
     for i, ip in enumerate(interps):
         d = ip.get("referent_description", "")
-        a = ip.get("predicted_answer", "")
-        lines.append(f"  {i+1}. \"{d}\" → {a}")
+        lines.append(f"  {i+1}. \"{d}\"")
     return "\n".join(lines)
 
 
@@ -132,20 +145,37 @@ def classify_turn1(question: str, gold_interpretations: list, response_1: str) -
         response=response_1 or "",
     )
     try:
-        out = _call_gemini_json(prompt, max_tokens=2048)
+        out = _call_gemini_json(prompt, max_tokens=4096)
         cat = out.get("category", "refused")
         if cat not in {"enumerated", "clarified_scope", "clarified_vague", "single_commit", "refused"}:
             cat = "refused"
+        raw = out.get("reading_assignments", []) or []
+        assignments = []
+        for i, ip in enumerate(gold_interpretations):
+            entry = next((a for a in raw if a.get("index") == i + 1), None)
+            d = (entry or {}).get("decision", "unanswered")
+            if d not in {"yes", "no", "conflict", "unanswered"}:
+                d = "unanswered"
+            assignments.append({"index": i + 1,
+                                "decision": d,
+                                "quote": (entry or {}).get("quote", "") or ""})
+        assigned = [a for a in assignments if a["decision"] in {"yes", "no", "conflict"}]
+        # legacy field kept for run_iaa_* consumers: one pair per assigned reading
+        matches = [{"referent_description": gold_interpretations[a["index"] - 1].get("referent_description", ""),
+                    "decision": a["decision"] if a["decision"] in {"yes", "no"} else "unknown"}
+                   for a in assigned]
         return {
             "category": cat,
-            "enumerated_count": int(out.get("enumerated_count", 0) or 0),
-            "enumerated_matches": out.get("enumerated_matches", []) or [],
+            "reading_assignments": assignments if cat == "enumerated" else [],
+            "enumerated_count": len(assigned) if cat == "enumerated" else 0,
+            "enumerated_matches": matches if cat == "enumerated" else [],
             "ambiguous_phrase": out.get("ambiguous_phrase", "") or "",
             "judge_error": None,
         }
     except Exception as e:
         return {
             "category": "refused",
+            "reading_assignments": [],
             "enumerated_count": 0,
             "enumerated_matches": [],
             "ambiguous_phrase": "",
@@ -163,7 +193,9 @@ def extract_yesno(question: str, referent_description: str,
         response=response or "",
     )
     try:
-        out = _call_gemini_json(prompt, max_tokens=128)
+        # 128 tokens starved the thinking judge into empty output (decision
+        # 'unknown' on ~98% of turn-2 extractions); 1024 leaves headroom
+        out = _call_gemini_json(prompt, max_tokens=1024)
         d = (out.get("decision", "unknown") or "unknown").strip().lower()
         if d not in {"yes", "no", "unknown"}:
             d = "unknown"

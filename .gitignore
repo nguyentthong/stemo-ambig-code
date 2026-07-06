@@ -27,6 +27,13 @@ __pycache__/
 # Secrets
 .env
 .env.*
+apis.txt
+
+# Heavy or local-only artifacts (rsync videos to the eval server separately)
+stemo/videos_h264/
+.DS_Store
+2412.13835v2.pdf
+eval_runs/*/iaa_shards/
 
 # Local tmp
 tmp/

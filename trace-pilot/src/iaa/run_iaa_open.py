@@ -35,6 +35,7 @@ You may respond in any of three ways:
 (2) If the question has multiple valid interpretations because of an ambiguous referent, you may enumerate each interpretation and provide an answer for each, using the format:
     "<referent description 1>" -> Yes/No
     "<referent description 2>" -> Yes/No
+    You may group interpretations that share the same answer, as long as the grouping identifies exactly which interpretations it covers (for example, "every attempt after the first").
 (3) Alternatively, you may ask a clarifying question that identifies the ambiguous noun phrase (e.g., "Which boy do you mean?"). If you do, the asker will respond with a specific referent, and you must then answer for that referent.
 
 Think step by step before responding."""

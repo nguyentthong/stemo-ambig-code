@@ -1,10 +1,10 @@
-# STEMO-Ambig — Interactive Ambig-Aware Accuracy (IAA) Protocol v1.0
+# STEMO-Ambig — ReQueST Score Protocol v1.0
 
 ## Goal
 
 Measure whether a model can both **recognize** referential ambiguity in a video question and **resolve** it correctly when given a disambiguation.
 
-This is the headline metric of the STEMO-Ambig benchmark. It generalizes strict enumeration (`strict-K`) and recognition-only (`AAR-loose`) by requiring the model to commit to a correct answer when disambiguated — not merely list options or ask a clarifying question.
+This is the headline metric of the benchmark, the ReQueST score (the scorer's output key remains `iaa` for backward compatibility). It generalizes strict enumeration (`strict-K`) and recognition-only (`AAR-loose`) by requiring the model to commit to a correct answer when disambiguated — not merely list options or ask a clarifying question.
 
 ## Protocol
 
@@ -16,7 +16,7 @@ Turn 1
   model → response_1
 
 Sub-judge classifies response_1:
-  enumerated         → score via strict-K (see §4); STOP
+  enumerated         → proportional credit: (readings answered correctly)/K (see §4); STOP
   single_commit      → 0.0; STOP
   refused            → 0.0; STOP
   clarified_scope    → proceed to Turn 2
@@ -90,7 +90,7 @@ For one item with K gold interpretations:
 
 | Turn-1 class       | Turn-2 needed | Item score                                                                  |
 |--------------------|---------------|-----------------------------------------------------------------------------|
-| `enumerated`       | no            | strict-K: 1.0 iff all K referent-answer pairs are correct, else 0.0         |
+| `enumerated`       | no            | proportional: (gold readings answered correctly)/K. 1.0 = strict-K, reported as a diagnostic |
 | `clarified_scope`  | yes           | 1.0 iff Turn-2 yes/no matches gold[selected], else 0.0                      |
 | `clarified_vague`  | yes           | 0.5 × (1.0 iff Turn-2 yes/no matches gold[selected], else 0.0) = 0.5 or 0.0 |
 | `single_commit`    | no            | 0.0                                                                         |
@@ -101,11 +101,29 @@ Per-model aggregate metrics:
 ```
 strict_K              = mean over items of (Turn-1 enumerated AND all K correct)
 aar_loose             = mean over items of (Turn-1 ∈ {enumerated, clarified_scope})
-iaa                   = mean over items of item_score (defined above)
+iaa                   = mean over items of item_score (defined above; enumeration credit is proportional)
 clarification_rate    = mean over items of (Turn-1 ∈ {clarified_scope, clarified_vague})
 recognition_no_recall = mean over items of (Turn-1 ∈ {clarified_vague})
 follow_through_rate   = (item resolved correctly given Turn-2 disambiguator) | (Turn-1 was a clarification)
+reading_coverage      = mean over items of (readings explicitly addressed / K)
+conditional_correctness = (correct answers on explicitly addressed readings) / (all explicitly addressed readings), pooled over items
 ```
+
+A response "addresses" a gold reading when it determinately assigns that reading an
+answer, either with an explicit referent-answer pair or with a grouped statement that
+covers it ("every attempt after the first succeeds" assigns yes to each covered attempt
+reading). The judge decides the assignment per reading, blind to the gold answers, and
+cites the quote that licenses each assignment. Hedged clauses, bare plurals without a
+universal quantifier, and counts without identification assign nothing; contradictory
+commitments score as wrong (see judge_prompts/classify_turn1.txt for the full rules).
+A clarification's follow-up addresses the reading the disambiguator named. A bare
+commitment addresses no reading: it gives the user no signal for locating which reading
+was answered, so it earns 0.0 even when its answer happens to fit the intended reading
+(that harm is measured separately as SMR). Enumeration credit is proportional:
+(readings determinately answered correctly)/K, the fraction of possible intended users
+who receive a correct answer for their reading. Per-reading assignment accuracy is
+validated against human annotators in the scheduled validation session, alongside the
+existing judge robustness checks (which must be re-run under this judge prompt).
 
 Per-K breakdowns: report each of the above stratified by K = 2, 3, 4-6, 7+ (matches paper bins).
 
@@ -126,6 +144,7 @@ You may respond in any of three ways:
     answer for each. Use the format:
         "<referent description 1>" → Yes/No
         "<referent description 2>" → Yes/No
+    You may group interpretations that share the same answer, as long as the grouping identifies exactly which interpretations it covers (for example, "every attempt after the first").
 
 (3) Alternatively, you may ask a clarifying question that identifies the
     ambiguous noun phrase (e.g., "which boy do you mean?"). If you do, the

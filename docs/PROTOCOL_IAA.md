@@ -126,6 +126,7 @@ You may respond in any of three ways:
     answer for each. Use the format:
         "<referent description 1>" → Yes/No
         "<referent description 2>" → Yes/No
+    You may group interpretations that share the same answer, as long as the grouping identifies exactly which interpretations it covers (for example, "every attempt after the first").
 
 (3) Alternatively, you may ask a clarifying question that identifies the
     ambiguous noun phrase (e.g., "which boy do you mean?"). If you do, the

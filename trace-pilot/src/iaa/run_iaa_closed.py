@@ -44,6 +44,7 @@ You may respond in any of three ways:
 (2) If the question has multiple valid interpretations because of an ambiguous referent, you may enumerate each interpretation and provide an answer for each, using the format:
     "<referent description 1>" -> Yes/No
     "<referent description 2>" -> Yes/No
+    You may group interpretations that share the same answer, as long as the grouping identifies exactly which interpretations it covers (for example, "every attempt after the first").
 (3) Alternatively, you may ask a clarifying question that identifies the ambiguous noun phrase (e.g., "Which boy do you mean?"). If you do, the asker will respond with a specific referent, and you must then answer for that referent.
 
 Think step by step before responding."""
@@ -81,7 +82,10 @@ def select_referent_index(item_id: str, K: int) -> int:
 
 
 def sample_frames(video_path, n=FRAMES):
-    import decord
+    try:
+        import decord
+    except ImportError:
+        return _sample_frames_ffmpeg(video_path, n)
     from PIL import Image
     vr = decord.VideoReader(str(video_path))
     total = len(vr)
@@ -92,6 +96,35 @@ def sample_frames(video_path, n=FRAMES):
         buf = io.BytesIO()
         Image.fromarray(fr).save(buf, format="JPEG", quality=85)
         out.append(base64.b64encode(buf.getvalue()).decode())
+    return out
+
+
+def _sample_frames_ffmpeg(video_path, n=FRAMES):
+    """Fallback when decord is unavailable (e.g. macOS arm64): same uniform
+    sampling via ffmpeg/ffprobe."""
+    import subprocess
+    import tempfile
+    dur = float(subprocess.run(
+        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+         "-of", "csv=p=0", str(video_path)],
+        capture_output=True, text=True).stdout.strip())
+    out = []
+    with tempfile.TemporaryDirectory() as td:
+        for i in range(n):
+            # midpoint spacing: never seeks at the container-duration edge,
+            # where some streams end before the reported duration (exit 234)
+            t = dur * (i + 0.5) / n
+            fp = f"{td}/f{i}.jpg"
+            for attempt_t in (t, t * 0.9):
+                try:
+                    subprocess.run(["ffmpeg", "-v", "quiet", "-ss", f"{attempt_t:.2f}",
+                                    "-i", str(video_path), "-frames:v", "1",
+                                    "-q:v", "5", fp], check=True)
+                    break
+                except subprocess.CalledProcessError:
+                    if attempt_t != t:
+                        raise
+            out.append(base64.b64encode(open(fp, "rb").read()).decode())
     return out
 
 
@@ -127,13 +160,28 @@ def gpt4o_messages_init(frames_b64, question):
 
 
 def gpt4o_call(client, model, messages):
-    resp = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0.0,
-        max_tokens=MAX_TOKENS,
-        seed=0,
-    )
+    # gpt-5-family endpoints reject temperature=0.0 / max_tokens; fall back
+    # to the newer parameter names and default temperature when needed.
+    try:
+        resp = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.0,
+            max_tokens=MAX_TOKENS,
+            seed=0,
+        )
+    except Exception as e:
+        if "max_tokens" in str(e) or "temperature" in str(e):
+            # reasoning models consume completion budget internally:
+            # leave headroom so the visible answer is not truncated away
+            resp = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_completion_tokens=max(MAX_TOKENS, 4096),
+                seed=0,
+            )
+        else:
+            raise
     return resp.choices[0].message.content or ""
 
 
@@ -495,12 +543,22 @@ def main():
         if not os.environ.get("OPENAI_API_KEY"):
             sys.exit("OPENAI_API_KEY not set")
         from openai import OpenAI
-        client = OpenAI()
-        # pre-warm frames
+        # default 600s timeout x stacked retries produced 6000s-per-item
+        # tail latencies on large frame payloads; bound it
+        client = OpenAI(timeout=240, max_retries=2)
+        # pre-warm frames (skip videos missing locally; their items become
+        # error rows in the worker loop)
         unique_videos = sorted({g["video_id"] for g in pending})
         print(f"[IAA] prewarming frames for {len(unique_videos)} videos...")
+
+        def _warm(v):
+            try:
+                get_frames_cached(v)
+            except Exception as e:
+                print(f"  prewarm skip {v}: {repr(e)[:80]}", flush=True)
+
         with ThreadPoolExecutor(max_workers=4) as ex:
-            for _ in ex.map(get_frames_cached, unique_videos):
+            for _ in ex.map(_warm, unique_videos):
                 pass
 
         def do(g):
