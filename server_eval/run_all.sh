@@ -17,6 +17,10 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 mkdir -p eval_runs tmp
 
+# no CUDA toolkit (nvcc) on the box: FlashInfer cannot JIT its sampling
+# kernel, so force vLLM's native torch sampler (we decode greedily anyway)
+export VLLM_USE_FLASHINFER_SAMPLER=0
+
 SMOKE=""
 [ "${1:-}" = "smoke" ] && SMOKE=1
 
