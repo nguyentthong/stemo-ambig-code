@@ -53,25 +53,30 @@ assert r.get("category"), r
 print("[run_all] judge OK:", r["category"])
 PYEOF
 
-# ---------- model queue: tag | hf_id | frames ----------
+# ---------- model queue: tag | hf_id | frames | tensor_parallel ----------
 # InternVL runs at 8 frames (paper setting), others at 16.
+# TP sized per model (8B fits one GPU; NCCL only where needed).
 QUEUE=(
-  "internvl8b|OpenGVLab/InternVL3_5-8B-HF|8"
-  "qwen35_27b|Qwen/Qwen3.5-27B|16"
-  "qwen36_27b|Qwen/Qwen3.6-27B|16"
-  "qwen3vl_32b|Qwen/Qwen3-VL-32B-Thinking|16"
-  "internvl38b|OpenGVLab/InternVL3_5-38B-HF|8"
+  "internvl8b|OpenGVLab/InternVL3_5-8B-HF|8|1"
+  "qwen35_27b|Qwen/Qwen3.5-27B|16|4"
+  "qwen36_27b|Qwen/Qwen3.6-27B|16|4"
+  "qwen3vl_32b|Qwen/Qwen3-VL-32B-Thinking|16|4"
+  "internvl38b|OpenGVLab/InternVL3_5-38B-HF|8|8"
 )
 
 PORT=8199
 LIMIT_ARG=""
-[ -n "$SMOKE" ] && { QUEUE=("internvl8b|OpenGVLab/InternVL3_5-8B-HF|8"); LIMIT_ARG="--limit 6"; }
+[ -n "$SMOKE" ] && { QUEUE=("internvl8b|OpenGVLab/InternVL3_5-8B-HF|8|1"); LIMIT_ARG="--limit 6"; }
 
 wait_for_server() {  # $1=pid  $2=log
   local waited=0
   while true; do
     curl -sf "http://localhost:$PORT/v1/models" >/dev/null 2>&1 && return 0
-    kill -0 "$1" 2>/dev/null || { echo "[run_all] server process died, log tail:"; tail -20 "$2"; return 1; }
+    if ! kill -0 "$1" 2>/dev/null; then
+      echo "[run_all] server process died. FIRST traceback in $2:"
+      awk '/Traceback|ERROR|CUDA out of memory/{found=1} found' "$2" | head -50
+      return 1
+    fi
     sleep 15; waited=$((waited+15))
     # generous: first run downloads weights from HF hub
     [ $waited -ge 5400 ] && { echo "[run_all] server timeout after 90 min"; return 1; }
@@ -110,7 +115,7 @@ PYEOF
 # ---------- main queue ----------
 DONE_TAGS=()
 for entry in "${QUEUE[@]}"; do
-  IFS='|' read -r TAG HF_ID FRAMES <<< "$entry"
+  IFS='|' read -r TAG HF_ID FRAMES TP <<< "$entry"
   OUT="eval_runs/$TAG/iaa_predictions.jsonl"
   mkdir -p "eval_runs/$TAG"
 
@@ -120,11 +125,11 @@ for entry in "${QUEUE[@]}"; do
     DONE_TAGS+=("$TAG"); continue
   fi
 
-  echo "[run_all] ===== $TAG ($HF_ID, ${FRAMES}f) start $(date) ====="
+  echo "[run_all] ===== $TAG ($HF_ID, ${FRAMES}f, tp=$TP) start $(date) ====="
   SERVER_LOG="tmp/vllm_${TAG}.log"
   $PY -m vllm.entrypoints.openai.api_server \
       --model "$HF_ID" --served-model-name "$TAG" \
-      --tensor-parallel-size 8 --port "$PORT" \
+      --tensor-parallel-size "$TP" --port "$PORT" \
       --limit-mm-per-prompt '{"image": 16}' \
       --max-model-len 32768 --gpu-memory-utilization 0.90 \
       --trust-remote-code > "$SERVER_LOG" 2>&1 &
