@@ -125,7 +125,7 @@ for entry in "${QUEUE[@]}"; do
   $PY -m vllm.entrypoints.openai.api_server \
       --model "$HF_ID" --served-model-name "$TAG" \
       --tensor-parallel-size 8 --port "$PORT" \
-      --limit-mm-per-prompt "image=16" \
+      --limit-mm-per-prompt '{"image": 16}' \
       --max-model-len 32768 --gpu-memory-utilization 0.90 \
       --trust-remote-code > "$SERVER_LOG" 2>&1 &
   SERVER_PID=$!
