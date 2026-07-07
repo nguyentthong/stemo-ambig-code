@@ -1,0 +1,55 @@
+NOTES: how ACL benchmark papers write the dataset-introduction paragraph (for ¶5 rewrite)
+
+== RAcQUEt (2412.13835v2), their ¶5 move sequence ==
+1. "To address these issues, we introduce RAcQUEt: A dataset of Referentially Ambiguous
+   Questions about images."  -> name delivered WITH its acronym expansion, tied to the
+   just-stated gap ("to address these issues").
+2. Size and composition immediately: "comprises 740 manually curated pairs ... divided
+   into two different subsets" with the purpose of each subset stated inline.
+3. They CONFRONT the ground-truth problem head-on, in this same paragraph:
+   "RAcQUEt does not include any ground-truth answers, as there are multiple valid ways
+   to respond to such questions, as discussed above. Instead, we collect a range of human
+   responses, categorize them into three distinct classes..."
+   -> pattern: acknowledge that multiple responses are valid, then state the evaluation
+   design that copes with it. OUR paragraph must do the same move with the OPPOSITE
+   resolution: multiple strategies are valid AND all of them are scorable, because
+   (a) every reading carries an exact yes/no gold answer (any enumeration, in any order
+   or grouping, can be checked), and (b) the clarification path is closed by a scripted,
+   deterministic interlocutor that replies with a fixed verbatim description of one
+   reading (no human, no LLM in the loop), so the interaction is reproducible.
+4. Then evaluation usage and a one-line preview of the key observation.
+
+== AmbigQA (Min et al., 2020) pattern ==
+Task definition -> dataset size -> the evaluation metric stated explicitly in the intro,
+because the multiple-answers problem makes "how do you score it" the reviewer's first
+question. Lesson: state the scoring rule, not just the annotation.
+
+== Design-choice defense pattern (RAcQUEt Limitations) ==
+They defend simple color/attire questions: "questions ... do not demand highly
+sophisticated visual processing skills. [This isolates] the challenge of addressing
+ambiguity." Lesson for our yes/no worry: present the format as a deliberate isolation
+device -> yes/no per reading is what makes an EXACT gold answer per reading possible,
+which is what makes every resolution strategy objectively scorable. Never lead with
+"yes/no questions" as a bare descriptor; lead with what the format buys.
+
+== Terminological consistency requirement (from ¶4) ==
+¶4 ends: "...an evaluation that accepts clarification requests and can score any reading
+against a gold answer. The former rules out unwillingness, and the latter tests
+identification."  -> ¶5 must OPEN by delivering exactly these two instruments, using the
+same word pair (unwillingness / identification, with inability as its established
+synonym pair from ¶4's "inability to identify").
+
+== Name ==
+ReQueST = REferential QUEstions Spanning Time. Double meaning: the protocol's hallmark
+is accepting clarification REQUESTS. Introduce both readings in one clause, RAcQUEt-style.
+
+== Sentences to integrate (Thong: currently out of context) ==
+- "A model that is free to ask, and answered when it asks, can fail only by not knowing."
+  -> must become the CONCLUSION of the protocol description (why the design attributes
+  failure to identification), not a floating aphorism.
+- Stakes sentence (hour-long meetings...) -> move OUT of ¶5; merge into ¶6 finding
+  ("the missing capability is finding the readings") as its consequence.
+
+== Hard constraints ==
+Formal register, no sentence under 7 words, no semicolons, no em/en-dashes,
+<=150 words for ¶5, no "crucial"/"delve"/"moreover".
