@@ -30,8 +30,12 @@ mkdir -p "$HF_HOME"
 SMOKE=""
 [ "${1:-}" = "smoke" ] && SMOKE=1
 
+# BINARY=1: run the binary ambiguity-detection pass (140 items, no judge)
+# instead of the full IAA protocol, writing analysis/binary_judgment_<tag>.json.
+BINARY="${BINARY:-}"
+
 # ---------- preflight ----------
-[ -n "${GEMINI_API_KEY:-}" ] || { echo "FATAL: export GEMINI_API_KEY (judge)"; exit 1; }
+[ -n "$BINARY" ] || [ -n "${GEMINI_API_KEY:-}" ] || { echo "FATAL: export GEMINI_API_KEY (judge)"; exit 1; }
 [ -f data_v0/stemo_ambig_candidates/all_questions.json ] || { echo "FATAL: all_questions.json missing"; exit 1; }
 N_VIDEOS=$(ls stemo/videos_h264/*.mp4 2>/dev/null | wc -l)
 [ "$N_VIDEOS" -gt 0 ] || { echo "FATAL: no videos in stemo/videos_h264 (rsync them first)"; exit 1; }
@@ -51,6 +55,8 @@ fi
 PY="$REPO/.venv_eval/bin/python"
 
 # judge sanity check: fail fast on a bad key, not 90 min into the run
+# (the binary-detection pass parses "multiple"/"one" locally, no judge needed)
+if [ -z "$BINARY" ]; then
 $PY - <<'PYEOF' || { echo "FATAL: Gemini judge call failed (check GEMINI_API_KEY)"; exit 1; }
 import sys
 sys.path.insert(0, "trace-pilot/src")
@@ -62,6 +68,7 @@ r = classify_turn1("Does the boy fall?",
 assert r.get("category"), r
 print("[run_all] judge OK:", r["category"])
 PYEOF
+fi
 
 # expected item count (dataset questions whose video is present) drives the
 # "model complete" / fallback thresholds instead of a hardcoded 1000
@@ -83,7 +90,7 @@ QUEUE=(
   "qwen35_27b|Qwen/Qwen3.5-27B|16|4"
   "qwen36_27b|Qwen/Qwen3.6-27B|16|4"
   "qwen3vl_32b|Qwen/Qwen3-VL-32B-Thinking|16|4"
-  "internvl38b|OpenGVLab/InternVL3_5-38B-HF|8|8"
+  "internvl38b|OpenGVLab/InternVL3_5-38B-HF|8|4"
 )
 
 # Lane overrides (used by run_parallel.sh):
@@ -173,7 +180,12 @@ for entry in "${QUEUE[@]}"; do
 
   # skip if complete (>= 95% of expected rows); FORCE=1 reruns anyway
   # (the driver's resume keeps clean rows and retries only errored ones)
-  if [ -z "$SMOKE" ] && [ -z "${FORCE:-}" ] && [ -f "$OUT" ] && [ "$(wc -l < "$OUT")" -ge "$MIN_ROWS" ]; then
+  if [ -n "$BINARY" ]; then
+    if [ -z "${FORCE:-}" ] && [ -f "analysis/binary_judgment_${TAG}.json" ]; then
+      echo "[run_all] $TAG binary detection already done, skipping"
+      DONE_TAGS+=("$TAG"); continue
+    fi
+  elif [ -z "$SMOKE" ] && [ -z "${FORCE:-}" ] && [ -f "$OUT" ] && [ "$(wc -l < "$OUT")" -ge "$MIN_ROWS" ]; then
     echo "[run_all] $TAG already complete, skipping"
     DONE_TAGS+=("$TAG"); continue
   fi
@@ -197,11 +209,20 @@ for entry in "${QUEUE[@]}"; do
   SERVER_PID=$!
 
   if wait_for_server "$SERVER_PID" "$SERVER_LOG"; then
-    $PY -u server_eval/run_iaa_vllm.py \
-        --base-url "http://localhost:$PORT/v1" --served-name "$TAG" \
-        --frames "$FRAMES" --output "$OUT" --concurrency 16 $LIMIT_ARG \
-        2>&1 | tee "tmp/driver_${TAG}.log"
-    DRIVER_OK=$?
+    if [ -n "$BINARY" ]; then
+      $PY -u server_eval/run_binary_vllm.py \
+          --base-url "http://localhost:$PORT/v1" --served-name "$TAG" \
+          --frames "$FRAMES" --output "analysis/binary_judgment_${TAG}.json" \
+          --concurrency 16 \
+          2>&1 | tee "tmp/binary_${TAG}.log"
+      DRIVER_OK=$?
+    else
+      $PY -u server_eval/run_iaa_vllm.py \
+          --base-url "http://localhost:$PORT/v1" --served-name "$TAG" \
+          --frames "$FRAMES" --output "$OUT" --concurrency 16 $LIMIT_ARG \
+          2>&1 | tee "tmp/driver_${TAG}.log"
+      DRIVER_OK=$?
+    fi
   else
     DRIVER_OK=1
   fi
@@ -210,18 +231,31 @@ for entry in "${QUEUE[@]}"; do
   # scope to this lane's server: a bare pkill would kill parallel lanes too
   pkill -f "vllm.entrypoints.*served-model-name $TAG" 2>/dev/null; sleep 10
 
-  if [ -z "$SMOKE" ]; then
+  # HF fallback is IAA-specific; the binary pass just reports server failure
+  if [ -z "$SMOKE" ] && [ -z "$BINARY" ]; then
     ROWS=$(wc -l < "$OUT" 2>/dev/null || echo 0)
     if [ "$DRIVER_OK" -ne 0 ] || [ "$ROWS" -lt "$MIN_ROWS" ]; then
       run_hf_fallback "$TAG" "$HF_ID" "$FRAMES"
     fi
+  elif [ -n "$BINARY" ] && [ "$DRIVER_OK" -ne 0 ]; then
+    echo "[run_all] WARNING: $TAG binary pass failed (server did not come up or driver errored)"
   fi
   DONE_TAGS+=("$TAG")
   echo "[run_all] ===== $TAG done $(date) ====="
 done
 
 # ---------- aggregate ----------
-if [ -z "${SKIP_AGG:-}" ]; then
+if [ -n "$BINARY" ]; then
+  echo "[run_all] binary detection summary (hit / false-alarm %):"
+  for t in "${DONE_TAGS[@]}"; do
+    [ -f "analysis/binary_judgment_${t}.json" ] && $PY - "$t" <<'PYEOF'
+import json, sys
+s = json.load(open(f"analysis/binary_judgment_{sys.argv[1]}.json"))["summary"]
+print(f"  {s['model']:14s} hit={s['hit']:5.1f}  fa={s['false_alarm']:5.1f}  "
+      f"(n_ok={s['n_ok']}, amb={s['n_ambiguous']}, ctl={s['n_controls']})")
+PYEOF
+  done
+elif [ -z "${SKIP_AGG:-}" ]; then
   echo "[run_all] aggregating $(date)"
   $PY server_eval/aggregate_metrics.py "${DONE_TAGS[@]}"
 fi

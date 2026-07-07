@@ -24,6 +24,28 @@ tail -f run_all.log
 GEMINI_API_KEY=<key> nohup bash server_eval/run_parallel.sh > run_parallel.log 2>&1 &
 ```
 
+### Binary ambiguity-detection pass (Table 4 / Figure 3 x-axis)
+
+Separately measures each open model's *detection* rate: it poses the human
+study's exact yes/no question ("could this be about more than one moment,
+event, or person?") over the same 140 items (100 ambiguous + 40 controls) the
+closed models answered in `experiments/model_binary_judgment.py`. No judge and
+no API key needed (answers are parsed locally as "multiple"/"one"); the whole
+sweep is ~5 min per model.
+
+```bash
+# smoke (8B only): BINARY=1 RUN_ONLY=internvl8b bash server_eval/run_all.sh
+BINARY=1 nohup bash server_eval/run_all.sh > run_binary.log 2>&1 &
+tail -f run_binary.log
+```
+
+Writes `analysis/binary_judgment_<tag>.json` per model (same schema as the
+closed-model files) and prints a hit / false-alarm table at the end. Copy back:
+
+```bash
+rsync -avP 'SERVER:stemo-ambig-code/analysis/binary_judgment_*.json' analysis/
+```
+
 Rerunning `run_all.sh` is safe: finished models are skipped, partial
 models resume (errored items are retried), and a model whose vLLM server
 will not start falls back to the proven HF sharded runner
