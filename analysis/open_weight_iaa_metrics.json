@@ -1,0 +1,387 @@
+{
+  "internvl8b": {
+    "n": 1056,
+    "n_errored": 0,
+    "iaa": 0.08948863636363637,
+    "strict_K": 0.03125,
+    "recognition": 0.24147727272727273,
+    "clarification_rate": 0.16666666666666666,
+    "follow_through": 0.3693181818181818,
+    "per_K": {
+      "2": {
+        "n": 441,
+        "n_errored": 0,
+        "iaa": 0.12811791383219956,
+        "strict_K": 0.07029478458049887,
+        "recognition": 0.3922902494331066,
+        "clarification_rate": 0.2675736961451247,
+        "follow_through": 0.23728813559322035
+      },
+      "3": {
+        "n": 58,
+        "n_errored": 0,
+        "iaa": 0.034482758620689655,
+        "strict_K": 0.0,
+        "recognition": 0.1724137931034483,
+        "clarification_rate": 0.10344827586206896,
+        "follow_through": 0.3333333333333333
+      },
+      "4-6": {
+        "n": 294,
+        "n_errored": 0,
+        "iaa": 0.04931972789115646,
+        "strict_K": 0.006802721088435374,
+        "recognition": 0.1326530612244898,
+        "clarification_rate": 0.06802721088435375,
+        "follow_through": 0.65
+      },
+      "7+": {
+        "n": 263,
+        "n_errored": 0,
+        "iaa": 0.0817490494296578,
+        "strict_K": 0.0,
+        "recognition": 0.12547528517110265,
+        "clarification_rate": 0.12167300380228137,
+        "follow_through": 0.6875
+      }
+    },
+    "per_subset": {
+      "Entity": {
+        "n": 555,
+        "n_errored": 0,
+        "iaa": 0.13243243243243244,
+        "strict_K": 0.03963963963963964,
+        "recognition": 0.35855855855855856,
+        "clarification_rate": 0.25225225225225223,
+        "follow_through": 0.37857142857142856
+      },
+      "Event": {
+        "n": 490,
+        "n_errored": 0,
+        "iaa": 0.04081632653061224,
+        "strict_K": 0.02040816326530612,
+        "recognition": 0.11020408163265306,
+        "clarification_rate": 0.07346938775510205,
+        "follow_through": 0.3333333333333333
+      },
+      "Mixed": {
+        "n": 11,
+        "n_errored": 0,
+        "iaa": 0.09090909090909091,
+        "strict_K": 0.09090909090909091,
+        "recognition": 0.18181818181818182,
+        "clarification_rate": 0.0,
+        "follow_through": 0.0
+      }
+    },
+    "judge_version": "gemini-3-flash-preview@iaa-v1.0"
+  },
+  "qwen35_27b": {
+    "n": 1054,
+    "n_errored": 2,
+    "iaa": 0.13140417457305503,
+    "strict_K": 0.09487666034155598,
+    "recognition": 0.22485768500948766,
+    "clarification_rate": 0.0967741935483871,
+    "follow_through": 0.4019607843137255,
+    "per_K": {
+      "2": {
+        "n": 441,
+        "n_errored": 0,
+        "iaa": 0.25170068027210885,
+        "strict_K": 0.1927437641723356,
+        "recognition": 0.42630385487528344,
+        "clarification_rate": 0.16326530612244897,
+        "follow_through": 0.375
+      },
+      "3": {
+        "n": 58,
+        "n_errored": 0,
+        "iaa": 0.1206896551724138,
+        "strict_K": 0.08620689655172414,
+        "recognition": 0.20689655172413793,
+        "clarification_rate": 0.05172413793103448,
+        "follow_through": 0.6666666666666666
+      },
+      "4-6": {
+        "n": 292,
+        "n_errored": 2,
+        "iaa": 0.03767123287671233,
+        "strict_K": 0.030821917808219176,
+        "recognition": 0.08561643835616438,
+        "clarification_rate": 0.0410958904109589,
+        "follow_through": 0.16666666666666666
+      },
+      "7+": {
+        "n": 263,
+        "n_errored": 0,
+        "iaa": 0.03612167300380228,
+        "strict_K": 0.0038022813688212928,
+        "recognition": 0.045627376425855515,
+        "clarification_rate": 0.057034220532319393,
+        "follow_through": 0.6666666666666666
+      }
+    },
+    "per_subset": {
+      "Entity": {
+        "n": 553,
+        "n_errored": 2,
+        "iaa": 0.1735985533453888,
+        "strict_K": 0.12839059674502712,
+        "recognition": 0.29475587703435807,
+        "clarification_rate": 0.12658227848101267,
+        "follow_through": 0.38571428571428573
+      },
+      "Event": {
+        "n": 490,
+        "n_errored": 0,
+        "iaa": 0.08061224489795918,
+        "strict_K": 0.05714285714285714,
+        "recognition": 0.14285714285714285,
+        "clarification_rate": 0.061224489795918366,
+        "follow_through": 0.4
+      },
+      "Mixed": {
+        "n": 11,
+        "n_errored": 0,
+        "iaa": 0.2727272727272727,
+        "strict_K": 0.09090909090909091,
+        "recognition": 0.36363636363636365,
+        "clarification_rate": 0.18181818181818182,
+        "follow_through": 1.0
+      }
+    },
+    "judge_version": "gemini-3-flash-preview@iaa-v1.0"
+  },
+  "qwen36_27b": {
+    "n": 1054,
+    "n_errored": 2,
+    "iaa": 0.150853889943074,
+    "strict_K": 0.11954459203036052,
+    "recognition": 0.25901328273244784,
+    "clarification_rate": 0.09392789373814042,
+    "follow_through": 0.35353535353535354,
+    "per_K": {
+      "2": {
+        "n": 441,
+        "n_errored": 0,
+        "iaa": 0.25510204081632654,
+        "strict_K": 0.2290249433106576,
+        "recognition": 0.4603174603174603,
+        "clarification_rate": 0.14285714285714285,
+        "follow_through": 0.20634920634920634
+      },
+      "3": {
+        "n": 58,
+        "n_errored": 0,
+        "iaa": 0.13793103448275862,
+        "strict_K": 0.10344827586206896,
+        "recognition": 0.2413793103448276,
+        "clarification_rate": 0.06896551724137931,
+        "follow_through": 0.5
+      },
+      "4-6": {
+        "n": 292,
+        "n_errored": 2,
+        "iaa": 0.05821917808219178,
+        "strict_K": 0.04794520547945205,
+        "recognition": 0.1095890410958904,
+        "clarification_rate": 0.03767123287671233,
+        "follow_through": 0.2727272727272727
+      },
+      "7+": {
+        "n": 263,
+        "n_errored": 0,
+        "iaa": 0.0817490494296578,
+        "strict_K": 0.019011406844106463,
+        "recognition": 0.09125475285171103,
+        "clarification_rate": 0.07984790874524715,
+        "follow_through": 0.8095238095238095
+      }
+    },
+    "per_subset": {
+      "Entity": {
+        "n": 553,
+        "n_errored": 2,
+        "iaa": 0.2088607594936709,
+        "strict_K": 0.16636528028933092,
+        "recognition": 0.3616636528028933,
+        "clarification_rate": 0.13381555153707053,
+        "follow_through": 0.33783783783783783
+      },
+      "Event": {
+        "n": 490,
+        "n_errored": 0,
+        "iaa": 0.0826530612244898,
+        "strict_K": 0.0653061224489796,
+        "recognition": 0.1346938775510204,
+        "clarification_rate": 0.044897959183673466,
+        "follow_through": 0.4090909090909091
+      },
+      "Mixed": {
+        "n": 11,
+        "n_errored": 0,
+        "iaa": 0.2727272727272727,
+        "strict_K": 0.18181818181818182,
+        "recognition": 0.6363636363636364,
+        "clarification_rate": 0.2727272727272727,
+        "follow_through": 0.3333333333333333
+      }
+    },
+    "judge_version": "gemini-3-flash-preview@iaa-v1.0"
+  },
+  "qwen3vl_32b": {
+    "n": 1054,
+    "n_errored": 2,
+    "iaa": 0.20872865275142316,
+    "strict_K": 0.08159392789373814,
+    "recognition": 0.3444022770398482,
+    "clarification_rate": 0.22011385199240988,
+    "follow_through": 0.6379310344827587,
+    "per_K": {
+      "2": {
+        "n": 441,
+        "n_errored": 0,
+        "iaa": 0.25056689342403626,
+        "strict_K": 0.1360544217687075,
+        "recognition": 0.4603174603174603,
+        "clarification_rate": 0.26077097505668934,
+        "follow_through": 0.5565217391304348
+      },
+      "3": {
+        "n": 58,
+        "n_errored": 0,
+        "iaa": 0.07758620689655173,
+        "strict_K": 0.05172413793103448,
+        "recognition": 0.13793103448275862,
+        "clarification_rate": 0.034482758620689655,
+        "follow_through": 1.0
+      },
+      "4-6": {
+        "n": 292,
+        "n_errored": 2,
+        "iaa": 0.1404109589041096,
+        "strict_K": 0.06506849315068493,
+        "recognition": 0.2191780821917808,
+        "clarification_rate": 0.11301369863013698,
+        "follow_through": 0.6666666666666666
+      },
+      "7+": {
+        "n": 263,
+        "n_errored": 0,
+        "iaa": 0.24334600760456274,
+        "strict_K": 0.015209125475285171,
+        "recognition": 0.33460076045627374,
+        "clarification_rate": 0.311787072243346,
+        "follow_through": 0.7317073170731707
+      }
+    },
+    "per_subset": {
+      "Entity": {
+        "n": 553,
+        "n_errored": 2,
+        "iaa": 0.28119349005424954,
+        "strict_K": 0.11030741410488246,
+        "recognition": 0.47739602169981915,
+        "clarification_rate": 0.30018083182640143,
+        "follow_through": 0.6024096385542169
+      },
+      "Event": {
+        "n": 490,
+        "n_errored": 0,
+        "iaa": 0.12959183673469388,
+        "strict_K": 0.05102040816326531,
+        "recognition": 0.19387755102040816,
+        "clarification_rate": 0.1306122448979592,
+        "follow_through": 0.734375
+      },
+      "Mixed": {
+        "n": 11,
+        "n_errored": 0,
+        "iaa": 0.09090909090909091,
+        "strict_K": 0.0,
+        "recognition": 0.36363636363636365,
+        "clarification_rate": 0.18181818181818182,
+        "follow_through": 0.5
+      }
+    },
+    "judge_version": "gemini-3-flash-preview@iaa-v1.0"
+  },
+  "internvl38b": {
+    "n": 1056,
+    "n_errored": 0,
+    "iaa": 0.01231060606060606,
+    "strict_K": 0.011363636363636364,
+    "recognition": 0.02462121212121212,
+    "clarification_rate": 0.005681818181818182,
+    "follow_through": 0.3333333333333333,
+    "per_K": {
+      "2": {
+        "n": 441,
+        "n_errored": 0,
+        "iaa": 0.024943310657596373,
+        "strict_K": 0.024943310657596373,
+        "recognition": 0.04081632653061224,
+        "clarification_rate": 0.0022675736961451248,
+        "follow_through": 0.0
+      },
+      "3": {
+        "n": 58,
+        "n_errored": 0,
+        "iaa": 0.017241379310344827,
+        "strict_K": 0.017241379310344827,
+        "recognition": 0.017241379310344827,
+        "clarification_rate": 0.0,
+        "follow_through": 0.0
+      },
+      "4-6": {
+        "n": 294,
+        "n_errored": 0,
+        "iaa": 0.003401360544217687,
+        "strict_K": 0.0,
+        "recognition": 0.017006802721088437,
+        "clarification_rate": 0.01020408163265306,
+        "follow_through": 0.6666666666666666
+      },
+      "7+": {
+        "n": 263,
+        "n_errored": 0,
+        "iaa": 0.0,
+        "strict_K": 0.0,
+        "recognition": 0.0076045627376425855,
+        "clarification_rate": 0.0076045627376425855,
+        "follow_through": 0.0
+      }
+    },
+    "per_subset": {
+      "Entity": {
+        "n": 555,
+        "n_errored": 0,
+        "iaa": 0.007207207207207207,
+        "strict_K": 0.005405405405405406,
+        "recognition": 0.023423423423423424,
+        "clarification_rate": 0.010810810810810811,
+        "follow_through": 0.3333333333333333
+      },
+      "Event": {
+        "n": 490,
+        "n_errored": 0,
+        "iaa": 0.018367346938775512,
+        "strict_K": 0.018367346938775512,
+        "recognition": 0.026530612244897958,
+        "clarification_rate": 0.0,
+        "follow_through": 0.0
+      },
+      "Mixed": {
+        "n": 11,
+        "n_errored": 0,
+        "iaa": 0.0,
+        "strict_K": 0.0,
+        "recognition": 0.0,
+        "clarification_rate": 0.0,
+        "follow_through": 0.0
+      }
+    },
+    "judge_version": "gemini-3-flash-preview@iaa-v1.0"
+  }
+}

@@ -18,6 +18,10 @@ GEMINI_API_KEY=<key> bash server_eval/run_all.sh smoke
 # the real run (leave it; ~30-60 min per model, 5 models):
 GEMINI_API_KEY=<key> nohup bash server_eval/run_all.sh > run_all.log 2>&1 &
 tail -f run_all.log
+
+# OR roughly halve wall time by pairing models across the 8 GPUs
+# (27B||27B, then 32B||8B, then 38B on all 8; logs in tmp/lane{A,B,C}.log):
+GEMINI_API_KEY=<key> nohup bash server_eval/run_parallel.sh > run_parallel.log 2>&1 &
 ```
 
 Rerunning `run_all.sh` is safe: finished models are skipped, partial

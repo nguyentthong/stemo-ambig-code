@@ -30,10 +30,16 @@ __pycache__/
 apis.txt
 
 # Heavy or local-only artifacts (rsync videos to the eval server separately)
-stemo/videos_h264/
+stemo/
 .DS_Store
 2412.13835v2.pdf
 eval_runs/*/iaa_shards/
+# open-weight IAA transcripts are large & regenerable; keep only metrics + figures
+eval_runs/*/iaa_predictions.jsonl
+# transient run artifacts
+PROGRESS.md
+run_all.log
+run_parallel.log
 
 # Local tmp
 tmp/
