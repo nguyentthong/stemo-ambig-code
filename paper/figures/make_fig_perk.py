@@ -53,7 +53,7 @@ plt.rcParams.update({
     "ps.fonttype": 42,
 })
 
-fig, ax = plt.subplots(figsize=(3.03, 2.25))
+fig, ax = plt.subplots(figsize=(3.03, 1.55))
 x = range(len(BINS))
 
 for name, ys, color, marker, ls, filled in MODELS:
@@ -71,10 +71,10 @@ ax.spines[["top", "right"]].set_visible(False)
 ax.grid(axis="y", color="#dddddd", lw=0.5, alpha=0.7)
 ax.set_axisbelow(True)
 
-# legend below the axis, grouped by family across three columns
-leg = ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.18),
-                ncol=3, handlelength=1.7, columnspacing=1.0, labelspacing=0.35,
-                handletextpad=0.4, borderaxespad=0.0)
+# legend below the axis, two compact rows
+leg = ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.22),
+                ncol=5, handlelength=1.2, columnspacing=0.7, labelspacing=0.3,
+                handletextpad=0.3, borderaxespad=0.0, fontsize=4.8)
 
 fig.savefig(OUT / "fig_perk.pdf", bbox_inches="tight")
 fig.savefig(OUT / "fig_perk.png", dpi=300, bbox_inches="tight")

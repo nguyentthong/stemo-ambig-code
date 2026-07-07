@@ -37,19 +37,28 @@
 \newcommand{\bench}{ReQueST}
 \newcommand{\benchicon}{\raisebox{-0.18em}{\includegraphics[height=1.05em]{figures/request_icon.png}}}
 
-% Compress float/caption/section spacing so the six main-body floats fit within
+% Compress float/caption/section spacing so the seven main-body floats fit within
 % the 8-page limit. Limitations still opens page 9.
-\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
-\setlength{\floatsep}{9pt plus 2pt minus 2pt}
-\setlength{\intextsep}{9pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{9pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{5pt}
+\setlength{\textfloatsep}{3pt plus 2pt minus 2pt}
+\setlength{\floatsep}{3pt plus 2pt minus 2pt}
+\setlength{\intextsep}{3pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{4pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{2pt}
 \setlength{\belowcaptionskip}{0pt}
+% allow denser float packing so a seventh float fits on the text pages
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
 % trim vertical space around (sub)section headings
+\usepackage{float}
 \usepackage{titlesec}
-\titlespacing*{\section}{0pt}{7pt plus 1pt minus 1pt}{4pt}
-\titlespacing*{\subsection}{0pt}{7pt plus 1pt minus 1pt}{3pt}
-\titlespacing*{\paragraph}{0pt}{5pt plus 1pt minus 1pt}{1em}
+\titlespacing*{\section}{0pt}{3pt plus 1pt minus 1pt}{2pt}
+\titlespacing*{\subsection}{0pt}{3pt plus 1pt minus 1pt}{2pt}
+\titlespacing*{\paragraph}{0pt}{3pt plus 1pt minus 1pt}{1em}
 
 \title{\benchicon{}\,\bench{}: One Question, Many Readings\\in Video Question Answering}
 % Alternative titles, same register:
@@ -74,13 +83,6 @@
 
 \clearpage
 \appendix
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig_perk.pdf}
-\caption{\bench{} score by $K$ bin for all evaluated models, one color per family. Scores fall as $K$ grows and enumeration becomes intractable. Models that clarify effectively, GPT-5 and Qwen3-VL-32B, sustain their score into the tail, while the rest decline toward strict-$K$.}
-\label{fig:perk}
-\end{figure}
 
 \input{files/appendix_annotation}
 \input{files/appendix_human_study}

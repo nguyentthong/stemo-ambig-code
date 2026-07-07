@@ -42,6 +42,13 @@ GPT-5 breaks the commitment pattern but not the ceiling. It commits silently on 
 
 Difficulty grows with $K$: at $K \geq 7$, strict-$K$ falls below 2\% for every pre-GPT-5 model and to 3.4\% for GPT-5, while clarification keeps the Gemini scores three to five times above strict-$K$ and the GPT-5 score at 31.7\% (Figure~\ref{fig:perk}).
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_perk.pdf}
+\caption{\bench{} score by $K$ bin for all evaluated models, one color per family. Scores fall as $K$ grows and enumeration becomes intractable. Models that clarify effectively, GPT-5 and Qwen3-VL-32B, sustain their score into the tail, while the rest decline toward strict-$K$.}
+\label{fig:perk}
+\end{figure}
+
 We evaluate SMR and misgrounding across model families using the reading-selection mapping of \S\ref{sec:judge}. Conditioned on committing, silent misinformation dominates: 97.6\% of GPT-4o's commitments select a non-intended reading and deliver an answer that is wrong for the intended one, yielding a per-question SMR of 95.8\%. The Gemini pair recognizes the ambiguity more often, but its commitments on the remaining questions carry the same risk. The open-weight Qwen models mirror GPT-4o, with silent misinformation on 95.1\% of their commitments and misgrounding accounting for most of the remainder. Identifying the ambiguity is therefore not enough if the model cannot faithfully ground its resolution.
 
 \subsection{Entity versus Event}
@@ -75,13 +82,13 @@ Two diagnostics separate identification from answering.
 \subsection{Human Construct Validation}
 \label{sec:humanstudy}
 
-Four annotators judged the 100 sampled questions and 40 disambiguated controls for whether each could be about more than one moment, event, or person in the video (design and analysis plan in Appendix~B). On average, 84.5\% of the ambiguous questions were judged ambiguous with a 3.2\% false-alarm rate on the controls, so the benchmark's ambiguity is perceptible to humans rather than an annotation artifact. Misses concentrate in the event subset, 76.2\% perceived against 91.8\% for entity, mirroring the model-side gap of \S\ref{sec:subsets}. Because the gold lists are separately verified (\S\ref{sec:construction}), this lower noticing marks difficulty rather than annotation error. Perceived ambiguity does not fall with $K$ across annotators, which suggests that temporal distribution hides readings rather than their number.
+Four annotators judged the 100 sampled questions and 40 disambiguated controls for whether each could be about more than one moment, event, or person in the video (design and analysis plan in Appendix~B). On average, 84.5\% of the ambiguous questions were judged ambiguous with a 3.2\% false-alarm rate on the controls, so the benchmark's ambiguity is perceptible to humans rather than an annotation artifact. Misses concentrate in the event subset, 76.2\% perceived against 91.8\% for entity, mirroring the model-side gap of \S\ref{sec:subsets}. Perceived ambiguity does not fall with $K$ across annotators, which suggests that temporal distribution hides readings rather than their number.
 
 \subsection{Case Study: Long-Form Video}
 \label{sec:casestudy}
 
 Longer videos hold more recurrence, raising $K$ (Figure~\ref{fig:stats}) and multiplying the readings a commitment can betray. We stratify results by duration and by the temporal spread of each question's evidence.
 
-Conditioned on committing, SMR rises with duration from 76.5\% on clips under one minute to 95.2\% on videos beyond three minutes. When evidence is dispersed across the entire video rather than clustered in a single segment, models default to the first-seen event and clarification rates drop to near zero. 
+Conditioned on committing, SMR rises with duration from 76.5\% on clips under one minute to 95.2\% on videos beyond three minutes. When evidence is dispersed across the video, models default to the first-seen event and clarification drops to near zero.
 
-On three hour-scale videos, when asked \textit{``What color shirt was the player wearing when they scored?''} across dozens of recurring events, GPT-4o and Qwen3-VL-32B commit to a single occurrence without asking. Recognition degrades with length and recurrence, consistent with hallucinated commitment as a central obstacle to long-form video understanding.
+On three hour-scale videos, asked \textit{``What color shirt was the player wearing when they scored?''}, GPT-4o and Qwen3-VL-32B commit to a single occurrence without asking. Recognition degrades with length and recurrence, a central obstacle to long-form video understanding.
