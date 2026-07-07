@@ -40,6 +40,7 @@ eval_runs/*/iaa_predictions.jsonl
 PROGRESS.md
 run_all.log
 run_parallel.log
+run_binary.log
 
 # Local tmp
 tmp/

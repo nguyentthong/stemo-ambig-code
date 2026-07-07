@@ -23,7 +23,13 @@ OUT = REPO / "analysis/figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
 # fixed model order + display names + colorblind-safe colors (Okabe-Ito)
-MODELS = ["internvl8b", "internvl38b", "qwen35_27b", "qwen36_27b", "qwen3vl_32b"]
+# internvl38b is EXCLUDED: its -HF checkpoint collapses to single_commit
+# (~93%, clarifies 0.3% vs the 8B's 14%) — verified NOT a tensor-parallel
+# effect (identical behavior at tp=2 and tp=4) and NOT vision-blindness
+# (it reads on-screen scoreboards/colors). Anomalous instruction-following on
+# the conversion, so it is omitted from figures rather than reported.
+EXCLUDED = ["internvl38b"]
+MODELS = ["internvl8b", "qwen35_27b", "qwen36_27b", "qwen3vl_32b"]
 LABEL = {
     "internvl8b": "InternVL3.5-8B",
     "internvl38b": "InternVL3.5-38B",
@@ -170,9 +176,13 @@ fig, axes = plt.subplots(2, 2, figsize=(13, 9))
 draw_scores(axes[0, 0]); draw_perk(axes[0, 1])
 draw_subsets(axes[1, 0]); draw_metrics(axes[1, 1])
 handles, labels = axes[0, 1].get_legend_handles_labels()
-fig.legend(handles, labels, frameon=False, ncol=5, loc="lower center",
-           bbox_to_anchor=(0.5, -0.01), fontsize=10)
+fig.legend(handles, labels, frameon=False, ncol=len(MODELS), loc="lower center",
+           bbox_to_anchor=(0.5, 0.02), fontsize=10)
 fig.suptitle("Open-weight IAA evaluation — STEMO ambiguous-referent benchmark (1,056 questions)",
              fontweight="bold", fontsize=13, y=1.0)
-fig.tight_layout(rect=(0, 0.03, 1, 0.99))
+note = ("InternVL3.5-38B omitted: its -HF checkpoint collapses to single-commit "
+        "answers (clarifies 0.3% vs the 8B's 14%); verified independent of "
+        "tensor-parallel size, so treated as an invalid run pending re-evaluation.")
+fig.text(0.5, -0.005, note, ha="center", va="top", fontsize=8, color="#666666", style="italic")
+fig.tight_layout(rect=(0, 0.04, 1, 0.99))
 save(fig, "overview")

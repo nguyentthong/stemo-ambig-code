@@ -75,21 +75,35 @@ def load_items() -> list[dict]:
 
 
 def parse(ans: str):
+    # take the model's FINAL decision: reasoning models (Qwen3.x, *-Thinking)
+    # think aloud and may name both words before concluding, so match on the
+    # LAST occurrence of "multiple"/"one" rather than the first.
     t = (ans or "").strip().lower()
-    if re.search(r"\bmultiple\b", t):
+    last = None
+    for m in re.finditer(r"\b(multiple|one)\b", t):
+        last = m.group(1)
+    if last == "multiple":
         return "ambiguous"
-    if re.search(r"\bone\b", t):
+    if last == "one":
         return "unambiguous"
     return None
 
 
-def chat(client, model: str, messages: list, max_tokens: int = 16) -> str:
+# Force the binary verdict with guided decoding. Free generation is unusable on
+# the open reasoning/base models: Qwen3.x base and Qwen3-VL-*-Thinking think
+# aloud ("The user is asking..."), so a 16-token cap truncates them to
+# unparseable fragments (judgment=None for all 140) and lifting the cap makes
+# them ramble for thousands of tokens without ever emitting the one word. A
+# constrained choice over {"multiple","one"} yields the model's actual verdict
+# in ~1 token, uniformly across base/instruct/thinking checkpoints.
+def chat(client, model: str, messages: list, max_tokens: int = 4) -> str:
     last = None
     for attempt in range(4):
         try:
             resp = client.chat.completions.create(
                 model=model, messages=messages,
-                temperature=0.0, max_tokens=max_tokens)
+                temperature=0.0, max_tokens=max_tokens,
+                extra_body={"structured_outputs": {"choice": ["multiple", "one"]}})
             return (resp.choices[0].message.content or "").strip()
         except Exception as e:  # noqa: BLE001
             last = e

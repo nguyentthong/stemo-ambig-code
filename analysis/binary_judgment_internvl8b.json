@@ -1,0 +1,853 @@
+{
+ "summary": {
+  "model": "internvl8b",
+  "n_ok": 140,
+  "n_error": 0,
+  "hit": 0.0,
+  "false_alarm": 0.0,
+  "n_ambiguous": 100,
+  "n_controls": 40
+ },
+ "rows": [
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_028",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_077",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_037",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_021",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_015",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_14_qh-yxk-qAOc_seed_48473cda7376_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0056_DhA7CGsACVI_seed_5f8e3aa0ccb9_002",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0056_DhA7CGsACVI_seed_5f8e3aa0ccb9_005",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_044",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0105_QB1P6Wjyb6o_seed_754f2e1104d9_003",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0058_VSYjs5RnlRo_seed_59a82c104c22_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0106_9jjYg2QStmU_seed_4983a2654363_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_023",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0069_4fJncjqNde0_seed_0fdd8960adf6_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0088_6Lqw0l__2uY_seed_e1e5256e4038_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0022_iXKNG8sZ18k_seed_580b49f47fb4_008",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0052_UmIYanq5gH8_seed_013e8e77cc19_004",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0028__wNtNtOlJQk_seed_0c9e0890295d_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_017",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0102_qt0uoY6Gq54_seed_cb1b6dc4a2d3_011",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_004",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_030",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0029_RnNdyCbwzn0_seed_02cd06245e1c_002",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0029_RnNdyCbwzn0_seed_02cd06245e1c_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_15_qh-yxk-qAOc_seed_48473cda7376_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_129",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_033",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0033_tzcamFb21Ro_seed_94c4e369db15_007",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0093_m_VqgbH0PWs_seed_29b1e2aed06d_034",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_004",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_032",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0019_5XJv23IX1og_seed_6622201a6b0c_005",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_125",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0060_QhJIA8moL5s_seed_8afbe7df807c_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0086_w93RNS9Uky4_seed_c2fb3f0929bb_004",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_012",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_11_qh-yxk-qAOc_seed_48473cda7376_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_145",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_018",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_079",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0104_1KmRJwmIYOA_seed_26f204259436_003",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_042",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0071_MCWJNOfJoSM_seed_7629226164ce_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_038",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0022_iXKNG8sZ18k_seed_580b49f47fb4_010",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_043",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0034_E-psLGFEeEM_seed_462a5c72244e_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0045_H_CJXuMxc8U_seed_cae3125288b8_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_025",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0093_m_VqgbH0PWs_seed_29b1e2aed06d_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_038",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0096_JMoUgI6MeLM_seed_ccb804da4349_003",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0022_iXKNG8sZ18k_seed_580b49f47fb4_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_154",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0087_k3rlRsZTiZw_seed_2ed8b811af7e_027",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_163",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_012",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0029_RnNdyCbwzn0_seed_02cd06245e1c_005",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0059_qXH1dVI8Jic_seed_f097ac128e90_009",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_121",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_009",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0105_QB1P6Wjyb6o_seed_754f2e1104d9_008",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_002",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0076_R6ynPpZaVnY_seed_7e46dcab3b26_033",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_034",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0076_R6ynPpZaVnY_seed_7e46dcab3b26_029",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_010",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_025",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0065_XFkuT7_ts_E_seed_7eb59b8cbde2_002",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0046_Md4QnipNYqM_seed_6ab8466b3c0f_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0033_tzcamFb21Ro_seed_94c4e369db15_012",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0107_LGzCMQy5d0w_seed_d26c9e4be06d_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0059_qXH1dVI8Jic_seed_f097ac128e90_015",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0086_w93RNS9Uky4_seed_c2fb3f0929bb_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0032_Fnqk7iZOlWc_seed_375b630e6122_007",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0060_QhJIA8moL5s_seed_8afbe7df807c_005",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_007",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_088",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_038",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_061",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_106",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_10_qh-yxk-qAOc_seed_944e6639f3e3_001",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0021_6OTAiK95eMo_seed_7a6d028b47e0_004",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_006",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0044_w45kAZ00KFY_seed_f91e2dd48c59_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0059_qXH1dVI8Jic_seed_f097ac128e90_027",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_017",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0093_m_VqgbH0PWs_seed_29b1e2aed06d_033",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_011",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0055_iijvUf5xkkU_seed_492c3a99bafd_003",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_011",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_078",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_010",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0060_QhJIA8moL5s_seed_8afbe7df807c_000",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_130",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0076_R6ynPpZaVnY_seed_7e46dcab3b26_041",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_168",
+   "control": false,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0064_X3v9_4OIdwI_seed_caa5e6c16061_020__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0069_4fJncjqNde0_seed_0fdd8960adf6_004__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0077_nBqyhpG5d98_seed_c4a11eb87448_062__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0033_tzcamFb21Ro_seed_94c4e369db15_000__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0054_dtGayHobxpk_seed_641be2b5971d_048__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0094_itC2lurwGGg_seed_b615627da3c0_018__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0105_QB1P6Wjyb6o_seed_754f2e1104d9_002__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0093_m_VqgbH0PWs_seed_29b1e2aed06d_029__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0055_iijvUf5xkkU_seed_492c3a99bafd_011__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0025_8wl59u2WW94_seed_ffcfbbfd9cc6_007__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0067_F5PC1XQQRvc_seed_b52136bbf5b4_021__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0096_JMoUgI6MeLM_seed_ccb804da4349_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0052_UmIYanq5gH8_seed_013e8e77cc19_002__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0060_QhJIA8moL5s_seed_8afbe7df807c_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0087_k3rlRsZTiZw_seed_2ed8b811af7e_022__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0038_VDcoROd7N3s_seed_f311635ee4b7_017__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0019_5XJv23IX1og_seed_6622201a6b0c_000__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0065_XFkuT7_ts_E_seed_7eb59b8cbde2_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0059_qXH1dVI8Jic_seed_f097ac128e90_011__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0058_VSYjs5RnlRo_seed_59a82c104c22_008__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0071_MCWJNOfJoSM_seed_7629226164ce_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0076_R6ynPpZaVnY_seed_7e46dcab3b26_037__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0016_NtTb-Cw6JVs_seed_3cc6db2323dd_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0106_9jjYg2QStmU_seed_4983a2654363_006__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0022_iXKNG8sZ18k_seed_580b49f47fb4_004__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0102_qt0uoY6Gq54_seed_cb1b6dc4a2d3_005__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0034_E-psLGFEeEM_seed_462a5c72244e_017__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0086_w93RNS9Uky4_seed_c2fb3f0929bb_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0046_Md4QnipNYqM_seed_6ab8466b3c0f_006__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0021_6OTAiK95eMo_seed_7a6d028b47e0_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0029_RnNdyCbwzn0_seed_02cd06245e1c_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_10_qh-yxk-qAOc_seed_944e6639f3e3_000__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0056_DhA7CGsACVI_seed_5f8e3aa0ccb9_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0032_Fnqk7iZOlWc_seed_375b630e6122_009__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_11_qh-yxk-qAOc_seed_48473cda7376_000__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0107_LGzCMQy5d0w_seed_d26c9e4be06d_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0104_1KmRJwmIYOA_seed_26f204259436_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0044_w45kAZ00KFY_seed_f91e2dd48c59_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0088_6Lqw0l__2uY_seed_e1e5256e4038_003__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  },
+  {
+   "id": "stemo_ambig_0036_15_qh-yxk-qAOc_seed_48473cda7376_001__control",
+   "control": true,
+   "raw": "one",
+   "judgment": "unambiguous"
+  }
+ ]
+}
