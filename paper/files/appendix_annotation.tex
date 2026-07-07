@@ -1,0 +1,4 @@
+\section{Annotation Guidelines}
+\label{app:guidelines}
+
+Annotators validate every candidate question against three requirements before it enters the benchmark. First, exhaustiveness: the annotator scans the full video and confirms that the reading list contains every visible grounding of the ambiguous phrase, including the default reading a casual viewer would reach first. Second, answerability: each reading must admit a determinate yes/no answer from the video alone, and the annotator records that answer independently before comparing against the proposed gold. Third, video-groundedness: ambiguities that a single frame already exhibits, for example split-screen layouts, are discarded. Disagreements between the annotator and the proposed list are adjudicated by a second annotator, and unresolved items are dropped. The full instruction sheet ships with the benchmark release.

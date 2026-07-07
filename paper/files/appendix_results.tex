@@ -1,0 +1,31 @@
+\section{Full Result Tables}
+\label{app:fulltables}
+
+\paragraph{Binary ambiguity detection.} Hit rate on the 100 ambiguous study items and false-alarm rate on the 40 controls.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Rater & Hit (\%) & False alarm (\%) \\
+\midrule
+Humans (4 annotators) & 84.5 & 3.2 \\
+GPT-5 & 75.3 & 12.1 \\
+Gemini-3-Flash & 54.9 & 15.2 \\
+Gemini-3.5-Flash & 52.4 & 12.1 \\
+Qwen3-VL-32B & 28.5 & 5.0 \\
+GPT-4o & 4.0 & 0.0 \\
+Qwen3.5-27B & 4.0 & 0.0 \\
+Qwen3.6-27B & 4.7 & 1.2 \\
+InternVL3.5-8B & 3.1 & 0.6 \\
+InternVL3.5-38B & 12.4 & 2.2 \\
+\bottomrule
+\end{tabular}
+\caption{Binary ambiguity detection per rater.}
+\label{tab:detection}
+\end{table}
+
+\paragraph{Gold-reading scaffold.} With the gold reading list supplied, correct full enumeration rates are 98.2\% for Qwen3.5-27B and above 95\% for every other open-weight model, with the exact per-model rates in the benchmark release.
+
+\paragraph{Saliency operationalization.} The visual-saliency analysis of \S\ref{sec:selection} ranks a question's readings by the referent's average bounding-box area and on-screen time, both from the construction-time grounding annotations, and marks the top-ranked reading as most salient. The temporal analysis uses the annotated onset of each reading's evidence. Per-subset breakdowns and the SMR stratifications by duration and evidence spread accompany the benchmark release.

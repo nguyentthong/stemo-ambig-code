@@ -1,0 +1,24 @@
+\section{Judge Prompt and Scoring Details}
+\label{app:judge}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Component & Metric & Re-run & Cross & Human \\
+\midrule
+Response type: enum. & $\kappa$ & 0.99 & 0.81 & 0.82 \\
+Response type: commit & $\kappa$ & 0.98 & 0.92 & 0.89 \\
+Per-reading assignment & \% / $r$ & 99.1 / .98 & 96.2 / .96 & 94.7 / .91 \\ % analysis/assignment_validation.json + judge_robustness_v2.json
+Reading-selection map & $\kappa$ & 0.97 & 0.91 & 0.88 \\
+Reading-list exhaust. & $\kappa$ & 0.96 & 0.84 & 0.81 \\
+\bottomrule
+\end{tabular}}
+\caption{Validation of the evaluation suite on 307 responses: a stratified 200-response sample of natural first responses plus 107 elicited enumerations, added because natural first responses rarely enumerate. Cells report each row's metric: Cohen's $\kappa$ for binary labels, exact agreement and Pearson $r$ (\% / $r$) for the per-reading assignments. \textbf{Re-run}: agreement of the same judge across repeated runs. \textbf{Cross}: agreement with GPT-4o as a second-family judge. \textbf{Human}: agreement with human annotators from a single annotation session with a 30-example adjudicated error audit (Appendix~B).}
+\label{tab:validation}
+\end{table}
+
+The judge is a fixed Gemini-3-Flash configuration at temperature 0. Its classification prompt shows the question, the gold reading descriptions without their answers, and the model response, and it returns a five-way response type plus, for enumerations, a per-reading assignment: for every gold reading, the answer the response determinately entails (yes, no, conflict, or unanswered), with a quoted licensing clause. Universally quantified statements cover every reading, exception constructions assign the complement, and hedged or bare-plural statements assign nothing. The 307-response validation sample of \S\ref{sec:judge} combines a 200-response stratified sample of natural first responses with 107 elicited enumerations, added because pilot models enumerate on under 2\% of natural responses. The pinned prompt ships in the benchmark release.

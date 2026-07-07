@@ -1,0 +1,9 @@
+\section{Can Training Close the Gap?}
+\label{sec:mitigation}
+
+We test whether targeted training removes hallucinated commitment on open-weight models, scored as the open-weight rows of Table~\ref{tab:main}.
+
+\paragraph{Supervised fine-tuning and format mimicry.} Distilling answer-only enumerations from a teacher, with the chain of thought stripped, teaches format rather than competence: on Qwen3.5-27B, enumeration rises from 17.9\% to 99.9\% of questions, yet the model addresses only 31.9\% of the gold readings, and correctness conditioned on enumerating does not move. We call this regime \textit{format mimicry}. The coverage-versus-correctness decomposition of \S\ref{sec:protocol} exposes it.
+A second recipe keeps only student traces that enumerate every gold reading. The gains over the re-scored base stay modest, and accepted traces concentrate at low $K$. On Qwen3-VL-32B, fine-tuning cuts clarification from 22.0\% to 1.2\%, with follow-through on the rare remaining requests at 61.5\%. Training moved the model between strategies rather than closing the gap.
+
+\paragraph{Reinforcement learning.} Judge-rewarded RL does not break the bottleneck. Online GRPO at the 9B scale plateaus at 1.1\%, near the table floor. Offline reward-filtered self-training on the 27B models moves scores by at most 0.8 points, within the confidence interval, leaving strict-$K$ at zero for $K \geq 7$. At high $K$ almost no rollout clears the reward threshold, so the policy receives no gradient where it most needs one. The entity-to-event gap survives every recipe, supporting \S\ref{sec:diagnostics}: neither format supervision nor sparse rewards teach finding temporally distributed readings.

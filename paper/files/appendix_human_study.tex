@@ -1,0 +1,8 @@
+\section{Human Study Design}
+\label{app:humanstudy}
+
+\paragraph{Materials.} 100 benchmark questions stratified by $K$ bin and subset, plus 40 controls constructed by disambiguating other questions from the same 43 videos (for example, \textit{``the winner''} becomes \textit{``the winner of the first round''}). Controls license a false-alarm rate, so agreement with the benchmark cannot come from annotators calling everything ambiguous.
+
+\paragraph{Task.} Each annotator watches the video, reads the question, and answers one binary item: could this question be about more than one moment, event, or person in this video, or exactly one? A web form presents items in an individually randomized order with two practice items, allows revisiting and revising earlier answers under an audit log, and imposes no time limits. No response is excluded for content: every input is data.
+
+\paragraph{Analysis.} We report the hit rate on ambiguous items against the false-alarm rate on controls, per-subset rates, and per-$K$ rates. The model-side run poses the identical binary question over the identical 140 items, with each model receiving its standard frame sampling.

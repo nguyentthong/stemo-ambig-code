@@ -1,0 +1,87 @@
+\section{Investigating Hallucinated Commitment with \bench{}}
+\label{sec:experiments}
+
+\subsection{Setup}
+\label{sec:setup}
+
+We evaluate four proprietary models, GPT-4o, GPT-5, Gemini-3-Flash, and Gemini-3.5-Flash, and five open-weight video-language models, Qwen3.5-27B, Qwen3.6-27B, Qwen3-VL-32B, InternVL3.5-8B, and InternVL3.5-38B (exact checkpoints in Appendix~E), each run on uniformly sampled frames at its default setting, 16 per video for all families except InternVL, which uses 8. All models use the same fixed-intention interlocutor at temperature 0 under the three-route prompt reproduced verbatim in Appendix~E (\S\ref{sec:protocol}). Sparse sampling could in principle hide readings in longer videos, but for the open-weight models the gold-reading scaffold shows the same frames support near-perfect per-reading answers once we supply the readings (\S\ref{sec:diagnostics}), so sampling does not explain their failures. We score every run with the suite of \S\ref{sec:judge} and report the \bench{} score, strict-$K$, the \textit{recognition rate}, the fraction of first responses that enumerate or ask a scope-anchored question, the \textit{clarification rate}, and \textit{follow-through}, the fraction of clarifications whose follow-up answer is correct. A separate human study (\S\ref{sec:humanstudy}) validates the constructs with natural tasks since no natural human behavior optimizes the model protocol.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Model & Score & strict-$K$ & Recog. & Clar. & F/T \\
+\midrule
+GPT-4o & 0.5 & 0.5 & 1.9 & 1.7 & 0.0 \\
+GPT-5 & 41.9 & 14.3 & 62.5 & 40.8 & 58.8 \\
+Gemini-3-Flash & 20.2 & 18.4 & 62.7 & 15.7 & 11.4 \\
+Gemini-3.5-Flash & 18.4 & 17.4 & 56.9 & 8.8 & 10.8 \\
+Qwen3.5-27B & 13.1 & 9.5 & 22.5 & 9.7 & 40.2 \\
+Qwen3.6-27B & 15.1 & 12.0 & 25.9 & 9.4 & 35.4 \\
+Qwen3-VL-32B & 20.9 & 8.2 & 34.4 & 22.0 & 63.8 \\
+InternVL3.5-8B & 8.9 & 3.1 & 24.1 & 16.7 & 36.9 \\
+InternVL3.5-38B & 1.2 & 1.1 & 2.5 & 0.6 & 33.3 \\
+\bottomrule
+\end{tabular}
+\caption{Main results on \bench{} (1{,}056 questions), all values percentages. Score: the \bench{} score. Recog.: recognition rate. Clar.: clarification rate. F/T: follow-through, conditional on clarification (\S\ref{sec:setup}).}
+\label{tab:main}
+\end{table}
+
+
+
+\subsection{Main Results}
+\label{sec:mainresults}
+
+Every model released before GPT-5 scores poorly on \bench{}, and for all but the Gemini pair the dominant first response is a silent commitment (Table~\ref{tab:main}). GPT-4o recognizes ambiguity on under 2\% of questions and completes no successful clarification. Four of the five open-weight base models recognize ambiguity on 22\% to 34\% of questions and score between 8.9\% and 20.9\%, still committing silently on most questions. InternVL3.5-38B is an outlier, recognizing ambiguity on only 2.5\% of questions and scoring 1.2\%, so it commits to a single reading on almost every question. Because the prompt lets models ask, silent commitment reflects behavior rather than a task constraint.
+
+The mid-tier models recognize ambiguity without resolving it. Gemini-3-Flash recognizes ambiguity on 62.7\% of questions yet scores 20.2\% because it misses readings when enumerating or answers incorrectly after asking, following through on only 11.4\% of its clarifications, and Gemini-3.5-Flash follows through on 10.8\%. For these models the bottleneck is not asking but using the reply, while GPT-5 and Qwen3-VL-32B resolve most of the clarifications they raise.
+
+GPT-5 breaks the commitment pattern but not the ceiling. It commits silently on 25.5\% of questions, asks on 40.8\%, and follows through on 58.8\% of its requests, for a score of 41.9\%. The residual gap has moved rather than closed: when GPT-5 enumerates, it covers one third of the gold readings. Two of five clarifications still fail after the interlocutor names the intended reading. Asking is thus no longer the main obstacle for GPT-5, but grounding the named reading remains one.
+
+Difficulty grows with $K$: at $K \geq 7$, strict-$K$ falls below 2\% for every pre-GPT-5 model and to 3.4\% for GPT-5, while clarification keeps the Gemini scores three to five times above strict-$K$ and the GPT-5 score at 31.7\% (Figure~\ref{fig:perk}).
+
+We evaluate SMR and misgrounding across model families using the reading-selection mapping of \S\ref{sec:judge}. Conditioned on committing, silent misinformation dominates: 97.6\% of GPT-4o's commitments select a non-intended reading and deliver an answer that is wrong for the intended one, yielding a per-question SMR of 95.8\%. The Gemini pair recognizes the ambiguity more often, but its commitments on the remaining questions carry the same risk. The open-weight Qwen models mirror GPT-4o, with silent misinformation on 95.1\% of their commitments and misgrounding accounting for most of the remainder. Identifying the ambiguity is therefore not enough if the model cannot faithfully ground its resolution.
+
+\subsection{Entity versus Event}
+\label{sec:subsets}
+
+The introduction predicted that readings recalled across episodes are harder to find than readings scanned within one scene. Figure~\ref{fig:subsets} confirms this on the event subset: under strict-$K$, the tested models fall by a factor of two to three from entity to event. The gap survives fine-tuning (\S5), and image benchmarks cannot expose this axis since their alternatives are co-present by construction. Full per-subset tables appear in Appendix~F.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_subsets.pdf}
+\caption{Entity versus event strict-$K$ (\%) for all evaluated models, ordered by entity strict-$K$. Readings recalled across episodes are harder to find than readings scanned within one scene, so every model above the floor scores higher on entity than on event. Only the near-floor InternVL3.5-38B, which recognizes ambiguity on 2.5\% of questions, departs from the pattern.}
+\label{fig:subsets}
+\end{figure}
+
+\subsection{What Do Models Commit To?}
+\label{sec:selection}
+
+If commitments were random draws from the reading list, harm would spread evenly over user intents. Following the saliency analysis of \citet{testoni2025racquet}, we map each committed response to the gold reading it answers using the mapping of \S\ref{sec:judge} and compare the selected readings with a random-selection baseline along two axes, the temporal position of the reading's evidence and the visual saliency of its referent. A systematic bias would turn SMR from an average into a targeted risk.
+
+Our analysis reveals a severe temporal and visual bias in reading selection. Across all scored models, 69.4\% of committed responses anchor to the chronologically first valid reading, against a baseline that draws uniformly from each question's readings (33.1\%, $p < 0.001$, $\chi^2$ test). Models disproportionately select the most visually salient referent, for example the entity with the largest bounding box or the longest screen time, in 74.2\% of cases ($p < 0.001$, operationalization in Appendix~F). This bias concentrates harm: conditioned on the intended reading appearing later in the video or naming a less salient entity, SMR approaches 100\%.
+
+\subsection{Isolating the Bottleneck: Identification versus Answering}
+\label{sec:diagnostics}
+
+Two diagnostics separate identification from answering.
+
+\paragraph{Gold-reading scaffold.} We re-evaluate the open-weight models with one addition to the input, the gold reading list itself. The model no longer needs to find the readings, only to answer each against the video. With this scaffold, Qwen3.5-27B produces correct full enumerations on 98.2\% of questions, against a strict-$K$ of 9.5\% without it (Table~\ref{tab:main}). The other open-weight models all exceed 95.0\% enumeration accuracy with the gold readings (Appendix~F).
+
+\paragraph{Clarification follow-through.} The complementary failure appears most clearly in the Gemini family. Gemini-3-Flash resolves only 11.4\% of its own clarifications and Gemini-3.5-Flash 10.8\%, so a model that asks the right question and still answers the named reading incorrectly has located the ambiguity without being able to ground its resolution, the interactive form of the same grounding failure. The open-weight base models resolve more of their requests once they ask (Table~\ref{tab:main}), which locates their loss earlier, at finding the readings.
+
+\subsection{Human Construct Validation}
+\label{sec:humanstudy}
+
+Four annotators judged the 100 sampled questions and 40 disambiguated controls for whether each could be about more than one moment, event, or person in the video (design and analysis plan in Appendix~B). On average, 84.5\% of the ambiguous questions were judged ambiguous with a 3.2\% false-alarm rate on the controls, so the benchmark's ambiguity is perceptible to humans rather than an annotation artifact. Misses concentrate in the event subset, 76.2\% perceived against 91.8\% for entity, mirroring the model-side gap of \S\ref{sec:subsets}. Because the gold lists are separately verified (\S\ref{sec:construction}), this lower noticing marks difficulty rather than annotation error. Perceived ambiguity does not fall with $K$ across annotators, which suggests that temporal distribution hides readings rather than their number.
+
+\subsection{Case Study: Long-Form Video}
+\label{sec:casestudy}
+
+Longer videos hold more recurrence, raising $K$ (Figure~\ref{fig:stats}) and multiplying the readings a commitment can betray. We stratify results by duration and by the temporal spread of each question's evidence.
+
+Conditioned on committing, SMR rises with duration from 76.5\% on clips under one minute to 95.2\% on videos beyond three minutes. When evidence is dispersed across the entire video rather than clustered in a single segment, models default to the first-seen event and clarification rates drop to near zero. 
+
+On three hour-scale videos, when asked \textit{``What color shirt was the player wearing when they scored?''} across dozens of recurring events, GPT-4o and Qwen3-VL-32B commit to a single occurrence without asking. Recognition degrades with length and recurrence, consistent with hallucinated commitment as a central obstacle to long-form video understanding.

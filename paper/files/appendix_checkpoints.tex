@@ -1,0 +1,14 @@
+\section{Checkpoints and Evaluation Prompt}
+\label{app:prompts}
+
+\paragraph{Checkpoints.} GPT-4o (gpt-4o-2024-08-06), GPT-5 (gpt-5), Gemini-3-Flash (gemini-3-flash-preview), Gemini-3.5-Flash (gemini-3.5-flash), Qwen3.5-27B, Qwen3.6-27B, Qwen3-VL-32B, InternVL3.5-8B-HF, and InternVL3.5-38B-HF, all at temperature 0. Frame budgets: 16 uniform frames per video, except the InternVL family at its default of 8.
+
+\paragraph{The three-route prompt, verbatim.}
+\begin{quote}\small\ttfamily
+You are an expert at answering questions about video content.\\[2pt]
+You may respond in any of three ways:\\[2pt]
+(1) If the question is unambiguous, give a single yes/no answer followed by a brief explanation.\\[2pt]
+(2) If the question has multiple valid interpretations because of an ambiguous referent, you may enumerate each interpretation explicitly and provide an answer for each. You may group interpretations that share the same answer, as long as the grouping identifies exactly which interpretations it covers (for example, ``every attempt after the first'').\\[2pt]
+(3) Alternatively, you may ask a clarifying question that identifies the ambiguous noun phrase (e.g., ``which boy do you mean?''). If you do, the asker will respond with a specific referent, and you must then answer the question for that referent.\\[2pt]
+Think step by step before responding.
+\end{quote}
